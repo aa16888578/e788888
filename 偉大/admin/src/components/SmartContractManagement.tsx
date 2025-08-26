@@ -1,0 +1,414 @@
+'use client';
+
+import { useState } from 'react';
+import { 
+  DocumentTextIcon, 
+  PlayIcon, 
+  StopIcon,
+  ArrowPathIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+  XCircleIcon
+} from '@heroicons/react/24/outline';
+
+interface SmartContract {
+  id: string;
+  name: string;
+  address: string;
+  network: string;
+  type: 'payment' | 'commission' | 'oracle';
+  status: 'active' | 'inactive' | 'deploying' | 'error';
+  version: string;
+  deployedAt: Date;
+  lastUpdate: Date;
+  gasUsed: number;
+  transactionCount: number;
+}
+
+const mockContracts: SmartContract[] = [
+  {
+    id: '1',
+    name: 'ShopBotPayment',
+    address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+    network: 'Tron Mainnet',
+    type: 'payment',
+    status: 'active',
+    version: '1.0.0',
+    deployedAt: new Date('2024-01-01'),
+    lastUpdate: new Date(),
+    gasUsed: 1250000,
+    transactionCount: 150
+  },
+  {
+    id: '2',
+    name: 'AgentCommission',
+    address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+    network: 'Tron Mainnet',
+    type: 'commission',
+    status: 'active',
+    version: '1.0.0',
+    deployedAt: new Date('2024-01-01'),
+    lastUpdate: new Date(),
+    gasUsed: 850000,
+    transactionCount: 75
+  },
+  {
+    id: '3',
+    name: 'PriceOracle',
+    address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+    network: 'Tron Mainnet',
+    type: 'oracle',
+    status: 'active',
+    version: '1.0.0',
+    deployedAt: new Date('2024-01-01'),
+    lastUpdate: new Date(),
+    gasUsed: 450000,
+    transactionCount: 300
+  }
+];
+
+export default function SmartContractManagement() {
+  const [contracts, setContracts] = useState<SmartContract[]>(mockContracts);
+  const [isDeploying, setIsDeploying] = useState(false);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'inactive': return 'bg-gray-100 text-gray-800';
+      case 'deploying': return 'bg-yellow-100 text-yellow-800';
+      case 'error': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active': return <CheckCircleIcon className="h-4 w-4 text-green-600" />;
+      case 'inactive': return <StopIcon className="h-4 w-4 text-gray-600" />;
+      case 'deploying': return <ArrowPathIcon className="h-4 w-4 text-yellow-600 animate-spin" />;
+      case 'error': return <XCircleIcon className="h-4 w-4 text-red-600" />;
+      default: return <ExclamationTriangleIcon className="h-4 w-4 text-gray-600" />;
+    }
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'payment': return 'bg-blue-100 text-blue-800';
+      case 'commission': return 'bg-green-100 text-green-800';
+      case 'oracle': return 'bg-purple-100 text-purple-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getTypeName = (type: string) => {
+    switch (type) {
+      case 'payment': return '支付合約';
+      case 'commission': return '佣金合約';
+      case 'oracle': return '預言機合約';
+      default: return '未知';
+    }
+  };
+
+  const deployContract = async (contractId: string) => {
+    setIsDeploying(true);
+    // 模擬部署過程
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    const updatedContracts = contracts.map(contract => 
+      contract.id === contractId 
+        ? { ...contract, status: 'active' as const, lastUpdate: new Date() }
+        : contract
+    );
+    
+    setContracts(updatedContracts);
+    setIsDeploying(false);
+  };
+
+  const pauseContract = async (contractId: string) => {
+    const updatedContracts = contracts.map(contract => 
+      contract.id === contractId 
+        ? { ...contract, status: 'inactive' as const, lastUpdate: new Date() }
+        : contract
+    );
+    
+    setContracts(updatedContracts);
+  };
+
+  const totalGasUsed = contracts.reduce((sum, contract) => sum + contract.gasUsed, 0);
+  const totalTransactions = contracts.reduce((sum, contract) => sum + contract.transactionCount, 0);
+
+  return (
+    <div className="space-y-6">
+      {/* 頁面標題 */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">智能合約管理</h1>
+        <p className="mt-2 text-sm text-gray-600">
+          部署、監控和管理 Tron 區塊鏈上的智能合約
+        </p>
+      </div>
+
+      {/* 合約統計 */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="p-3 rounded-md bg-blue-500">
+                  <DocumentTextIcon className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    總合約數
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {contracts.length}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="p-3 rounded-md bg-green-500">
+                  <CheckCircleIcon className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    活躍合約
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {contracts.filter(c => c.status === 'active').length}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="p-3 rounded-md bg-yellow-500">
+                  <ArrowPathIcon className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    總 Gas 使用
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {totalGasUsed.toLocaleString()}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="p-3 rounded-md bg-purple-500">
+                  <DocumentTextIcon className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    總交易數
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {totalTransactions.toLocaleString()}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 合約列表 */}
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-900">智能合約列表</h3>
+            <button
+              onClick={() => setIsDeploying(true)}
+              disabled={isDeploying}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            >
+              <DocumentTextIcon className="h-4 w-4 mr-2" />
+              {isDeploying ? '部署中...' : '部署新合約'}
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {contracts.map((contract) => (
+              <div key={contract.id} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className={`p-2 rounded-md ${getTypeColor(contract.type)}`}>
+                      <DocumentTextIcon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900">{contract.name}</h4>
+                      <p className="text-xs text-gray-500">
+                        {getTypeName(contract.type)} • v{contract.version}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="text-right">
+                    <div className="flex items-center space-x-2 mb-1">
+                      {getStatusIcon(contract.status)}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(contract.status)}`}>
+                        {contract.status === 'active' ? '活躍' :
+                         contract.status === 'inactive' ? '暫停' :
+                         contract.status === 'deploying' ? '部署中' :
+                         contract.status === 'error' ? '錯誤' : contract.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      部署於: {contract.deployedAt.toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-4">
+                  <div>
+                    <p className="text-xs text-gray-500">合約地址</p>
+                    <p className="text-sm font-mono text-gray-900">
+                      {contract.address.slice(0, 8)}...{contract.address.slice(-8)}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-xs text-gray-500">網絡</p>
+                    <p className="text-sm text-gray-900">{contract.network}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-xs text-gray-500">Gas 使用</p>
+                    <p className="text-sm text-gray-900">{contract.gasUsed.toLocaleString()}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-xs text-gray-500">交易數</p>
+                    <p className="text-sm text-gray-900">{contract.transactionCount.toLocaleString()}</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="text-xs text-gray-500">
+                    最後更新: {contract.lastUpdate.toLocaleString()}
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    {contract.status === 'active' ? (
+                      <button
+                        onClick={() => pauseContract(contract.id)}
+                        className="inline-flex items-center px-3 py-1 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                      >
+                        <StopIcon className="h-3 w-3 mr-1" />
+                        暫停
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => deployContract(contract.id)}
+                        disabled={isDeploying}
+                        className="inline-flex items-center px-3 py-1 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
+                      >
+                        <PlayIcon className="h-3 w-3 mr-1" />
+                        啟動
+                      </button>
+                    )}
+                    
+                    <button className="inline-flex items-center px-3 py-1 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                      <ArrowPathIcon className="h-3 w-3 mr-1" />
+                      同步
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 合約部署設置 */}
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">合約部署設置</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                網絡選擇
+              </label>
+              <select className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                <option value="tron_mainnet">Tron Mainnet</option>
+                <option value="tron_testnet">Tron Testnet</option>
+                <option value="ethereum_mainnet">Ethereum Mainnet</option>
+                <option value="ethereum_testnet">Ethereum Testnet</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                合約類型
+              </label>
+              <select className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                <option value="payment">支付合約</option>
+                <option value="commission">佣金合約</option>
+                <option value="oracle">預言機合約</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                部署者地址
+              </label>
+              <input
+                type="text"
+                placeholder="輸入部署者錢包地址"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Gas 限制
+              </label>
+              <input
+                type="number"
+                placeholder="設置 Gas 限制"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+          </div>
+          
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              合約參數
+            </label>
+            <textarea
+              rows={4}
+              placeholder="輸入合約初始化參數 (JSON 格式)"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

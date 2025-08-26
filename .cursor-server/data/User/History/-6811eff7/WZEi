@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# 🔐 Git 預提交鉤子
+# 防止意外提交敏感文件
+
+echo "🔍 預提交檢查：檢查敏感文件..."
+
+# 檢查是否有 .env 文件被暫存
+if git diff --cached --name-only | grep -E "\.env$|\.env\."; then
+    echo "❌ 錯誤：檢測到環境變數文件被暫存！"
+    echo ""
+    echo "🚨 這些文件包含敏感信息，不能提交到 Git："
+    git diff --cached --name-only | grep -E "\.env$|\.env\." | while read file; do
+        echo "   - $file"
+    done
+    echo ""
+    echo "💡 解決方法："
+    echo "   1. 從暫存區移除這些文件："
+    echo "      git reset HEAD .env*"
+    echo "   2. 確保 .gitignore 包含 .env* 模式"
+    echo "   3. 使用 env.example 作為範例文件"
+    echo ""
+    echo "🔒 提交被阻止，請先處理敏感文件問題。"
+    exit 1
+fi
+
+# 檢查是否有包含敏感信息的文件
+echo "🔍 檢查暫存文件中的敏感信息..."
+git diff --cached | grep -i "api_key\|secret\|password\|token\|private_key" | head -5 | while read line; do
+    if [ ! -z "$line" ]; then
+        echo "⚠️  警告：發現可能的敏感信息："
+        echo "   $line"
+        echo ""
+        echo "💡 建議檢查是否包含真實的密鑰或密碼"
+        echo ""
+    fi
+done
+
+echo "✅ 預提交檢查通過！"
+exit 0

@@ -1,0 +1,17 @@
+{
+    "name": "Cursor",
+    "version": "1.4.5",
+    "private": true,
+    "overrides": {
+        "node-gyp-build": "4.8.1",
+        "import-in-the-middle": "1.13.1",
+        "kerberos@2.1.1": {
+            "node-addon-api": "7.1.0"
+        },
+        "@parcel/watcher": "2.5.1",
+        "@parcel/watcher@2.5.1": {
+            "node-addon-api": "7.1.0"
+        }
+    },
+    "type": "module"
+}

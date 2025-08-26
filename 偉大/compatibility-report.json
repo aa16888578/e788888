@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-08-26T12:09:34.137Z",
+  "nodeVersion": "v22.18.0",
+  "npmVersion": "10.9.3",
+  "projects": [
+    "根目錄",
+    "Admin 後台",
+    "MiniWeb",
+    "Functions"
+  ],
+  "issues": [],
+  "recommendations": []
+}
