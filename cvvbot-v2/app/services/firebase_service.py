@@ -23,23 +23,64 @@ class FirebaseService:
         """初始化 Firebase"""
         try:
             if not firebase_admin._apps:
+                # 檢查 Firebase 配置是否完整
+                if not hasattr(settings, 'FIREBASE_PROJECT_ID') or not settings.FIREBASE_PROJECT_ID:
+                    logger.warning("⚠️ Firebase 配置不完整，使用模擬模式")
+                    self._use_mock_mode()
+                    return
+                
                 # 從環境變量創建憑證
                 cred_dict = {
                     "type": "service_account",
                     "project_id": settings.FIREBASE_PROJECT_ID,
-                    "private_key": settings.FIREBASE_PRIVATE_KEY.replace('\\n', '\n'),
-                    "client_email": settings.FIREBASE_CLIENT_EMAIL,
+                    "private_key": getattr(settings, 'FIREBASE_PRIVATE_KEY', '').replace('\\n', '\n'),
+                    "client_email": getattr(settings, 'FIREBASE_CLIENT_EMAIL', ''),
+                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                    "token_uri": "https://oauth2.googleapis.com/token",
                 }
+                
+                # 檢查必要字段
+                if not all([cred_dict['project_id'], cred_dict['private_key'], cred_dict['client_email']]):
+                    logger.warning("⚠️ Firebase 憑證不完整，使用模擬模式")
+                    self._use_mock_mode()
+                    return
                 
                 cred = credentials.Certificate(cred_dict)
                 firebase_admin.initialize_app(cred)
             
             self.db = firestore.client()
-            logger.info("Firebase 初始化成功")
+            logger.info("✅ Firebase 初始化成功")
             
         except Exception as e:
-            logger.error(f"Firebase 初始化失败: {e}")
-            raise
+            logger.error(f"❌ Firebase 初始化失败: {e}")
+            logger.info("🔄 切換到模擬模式")
+            self._use_mock_mode()
+    
+    def _use_mock_mode(self):
+        """使用模擬模式"""
+        self.mock_mode = True
+        logger.info("🎭 Firebase 模擬模式已啟用")
+        
+        # 創建一個模擬的數據庫對象
+        self.db = type('MockDB', (), {
+            'collection': lambda self, name: type('MockCollection', (), {
+                'document': lambda self, doc_id: type('MockDocument', (), {
+                    'get': lambda self: type('MockDoc', (), {
+                        'exists': False,
+                        'to_dict': lambda self: {}
+                    })(),
+                    'set': lambda self, data: None,
+                    'delete': lambda self: None
+                })(),
+                'where': lambda self, field, op, value: type('MockQuery', (), {
+                    'limit': lambda self, n: type('MockQuery', (), {
+                        'stream': lambda self: []
+                    })(),
+                    'stream': lambda self: []
+                })(),
+                'add': lambda self, data: (None, type('MockDocRef', (), {'id': 'mock_id'})())
+            })()
+        })()
     
     # CVV 相關操作
     async def get_cvv_cards(self, filters: Dict[str, Any] = None) -> List[Dict]:
