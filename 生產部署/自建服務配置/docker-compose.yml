@@ -50,7 +50,7 @@ services:
 
   # 後端 API 服務
   backend:
-    build: ./BACKEND
+    build: ../BACKEND
     container_name: cvvbot_backend
     environment:
       NODE_ENV: production
@@ -76,7 +76,7 @@ services:
 
   # Web 前端
   frontend:
-    build: ./cvv-website
+    build: ../cvv-website
     container_name: cvvbot_frontend
     ports:
       - "80:80"
@@ -88,7 +88,7 @@ services:
 
   # Telegram Bot
   bot:
-    build: ./cvvbot-v2
+    build: ../cvvbot-v2
     container_name: cvvbot_telegram
     environment:
       BOT_TOKEN: ${BOT_TOKEN}
