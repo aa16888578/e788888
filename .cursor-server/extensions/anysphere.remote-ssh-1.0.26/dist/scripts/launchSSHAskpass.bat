@@ -1,0 +1,6 @@
+@ECHO OFF
+setlocal EnableExtensions
+
+set ELECTRON_RUN_AS_NODE=1
+
+"%CURSOR_SSH_ELECTRON_PATH%" "%CURSOR_SSH_ASKPASS_JS%" %*

@@ -1,0 +1,399 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+
+/**
+ * @title ShopBot Payment Contract
+ * @dev 處理 USDT-TRC20 支付的智能合約
+ * @author ShopBot Team
+ */
+contract ShopBotPayment is ReentrancyGuard, Pausable, Ownable {
+    using Counters for Counters.Counter;
+    
+    // 事件定義
+    event PaymentCreated(
+        bytes32 indexed paymentId,
+        uint256 indexed orderId,
+        address indexed user,
+        uint256 amount,
+        uint256 timestamp
+    );
+    
+    event PaymentConfirmed(
+        bytes32 indexed paymentId,
+        address indexed user,
+        uint256 amount,
+        uint256 timestamp
+    );
+    
+    event PaymentRefunded(
+        bytes32 indexed paymentId,
+        address indexed user,
+        uint256 amount,
+        uint256 timestamp
+    );
+    
+    event PaymentExpired(
+        bytes32 indexed paymentId,
+        uint256 indexed orderId,
+        uint256 timestamp
+    );
+    
+    event CommissionDistributed(
+        address indexed agent,
+        uint256 amount,
+        uint256 timestamp
+    );
+    
+    // 結構體定義
+    struct Payment {
+        bytes32 paymentId;
+        uint256 orderId;
+        address user;
+        uint256 amount;
+        uint256 usdtAmount;
+        uint256 exchangeRate;
+        uint256 requiredConfirmations;
+        uint256 confirmations;
+        uint256 expiresAt;
+        PaymentStatus status;
+        bool exists;
+    }
+    
+    struct Agent {
+        address agentAddress;
+        uint256 level;
+        uint256 commissionRate;
+        uint256 totalCommission;
+        bool isActive;
+    }
+    
+    // 枚舉定義
+    enum PaymentStatus {
+        Pending,        // 等待支付
+        Processing,     // 處理中
+        Confirmed,      // 已確認
+        Failed,         // 支付失敗
+        Expired,        // 已過期
+        Refunded        // 已退款
+    }
+    
+    // 狀態變數
+    Counters.Counter private _paymentIdCounter;
+    
+    mapping(bytes32 => Payment) public payments;
+    mapping(uint256 => bytes32) public orderToPayment;
+    mapping(address => Agent) public agents;
+    mapping(address => uint256) public userBalances;
+    
+    // 配置參數
+    uint256 public minPaymentAmount = 1 * 10**6; // 1 USDT (6 decimals)
+    uint256 public maxPaymentAmount = 10000 * 10**6; // 10,000 USDT
+    uint256 public paymentTimeout = 30 minutes;
+    uint256 public defaultConfirmations = 20;
+    
+    // USDT 合約地址 (Tron Mainnet)
+    address public constant USDT_ADDRESS = 0xTR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t;
+    
+    // 佣金配置
+    uint256 public baseCommissionRate = 1500; // 15% (1500 basis points)
+    uint256 public maxAgentLevels = 3;
+    
+    // 修飾符
+    modifier onlyActiveAgent() {
+        require(agents[msg.sender].isActive, "Agent not active");
+        _;
+    }
+    
+    modifier paymentExists(bytes32 paymentId) {
+        require(payments[paymentId].exists, "Payment does not exist");
+        _;
+    }
+    
+    modifier validAmount(uint256 amount) {
+        require(amount >= minPaymentAmount, "Amount too low");
+        require(amount <= maxPaymentAmount, "Amount too high");
+        _;
+    }
+    
+    // 構造函數
+    constructor() {
+        _paymentIdCounter.increment(); // 從 1 開始
+    }
+    
+    /**
+     * @dev 創建支付訂單
+     * @param orderId 訂單 ID
+     * @param amount 支付金額 (USDT)
+     * @param exchangeRate 匯率 (1 USDT = ? 法幣)
+     */
+    function createPayment(
+        uint256 orderId,
+        uint256 amount,
+        uint256 exchangeRate
+    ) external validAmount(amount) whenNotPaused returns (bytes32) {
+        require(orderToPayment[orderId] == bytes32(0), "Order already has payment");
+        
+        bytes32 paymentId = _generatePaymentId();
+        
+        Payment memory newPayment = Payment({
+            paymentId: paymentId,
+            orderId: orderId,
+            user: msg.sender,
+            amount: amount,
+            usdtAmount: amount,
+            exchangeRate: exchangeRate,
+            requiredConfirmations: defaultConfirmations,
+            confirmations: 0,
+            expiresAt: block.timestamp + paymentTimeout,
+            status: PaymentStatus.Pending,
+            exists: true
+        });
+        
+        payments[paymentId] = newPayment;
+        orderToPayment[orderId] = paymentId;
+        
+        emit PaymentCreated(
+            paymentId,
+            orderId,
+            msg.sender,
+            amount,
+            block.timestamp
+        );
+        
+        return paymentId;
+    }
+    
+    /**
+     * @dev 確認支付
+     * @param paymentId 支付 ID
+     * @param confirmations 確認數
+     */
+    function confirmPayment(
+        bytes32 paymentId,
+        uint256 confirmations
+    ) external onlyOwner paymentExists(paymentId) {
+        Payment storage payment = payments[paymentId];
+        
+        require(payment.status == PaymentStatus.Pending, "Payment not pending");
+        require(confirmations >= payment.requiredConfirmations, "Insufficient confirmations");
+        
+        payment.status = PaymentStatus.Confirmed;
+        payment.confirmations = confirmations;
+        
+        // 更新用戶餘額
+        userBalances[payment.user] += payment.amount;
+        
+        // 分配佣金
+        _distributeCommission(payment.user, payment.amount);
+        
+        emit PaymentConfirmed(
+            paymentId,
+            payment.user,
+            payment.amount,
+            block.timestamp
+        );
+    }
+    
+    /**
+     * @dev 處理退款
+     * @param paymentId 支付 ID
+     */
+    function processRefund(
+        bytes32 paymentId
+    ) external onlyOwner paymentExists(paymentId) {
+        Payment storage payment = payments[paymentId];
+        
+        require(payment.status == PaymentStatus.Confirmed, "Payment not confirmed");
+        
+        payment.status = PaymentStatus.Refunded;
+        
+        // 扣除用戶餘額
+        userBalances[payment.user] -= payment.amount;
+        
+        emit PaymentRefunded(
+            paymentId,
+            payment.user,
+            payment.amount,
+            block.timestamp
+        );
+    }
+    
+    /**
+     * @dev 過期支付
+     * @param paymentId 支付 ID
+     */
+    function expirePayment(
+        bytes32 paymentId
+    ) external onlyOwner paymentExists(paymentId) {
+        Payment storage payment = payments[paymentId];
+        
+        require(payment.status == PaymentStatus.Pending, "Payment not pending");
+        require(block.timestamp > payment.expiresAt, "Payment not expired");
+        
+        payment.status = PaymentStatus.Expired;
+        
+        emit PaymentExpired(
+            paymentId,
+            payment.orderId,
+            block.timestamp
+        );
+    }
+    
+    /**
+     * @dev 註冊代理
+     * @param agentAddress 代理地址
+     * @param level 代理等級 (1-3)
+     * @param commissionRate 佣金比例 (basis points)
+     */
+    function registerAgent(
+        address agentAddress,
+        uint256 level,
+        uint256 commissionRate
+    ) external onlyOwner {
+        require(level > 0 && level <= maxAgentLevels, "Invalid agent level");
+        require(commissionRate <= baseCommissionRate, "Commission rate too high");
+        
+        agents[agentAddress] = Agent({
+            agentAddress: agentAddress,
+            level: level,
+            commissionRate: commissionRate,
+            totalCommission: 0,
+            isActive: true
+        });
+    }
+    
+    /**
+     * @dev 提現佣金
+     */
+    function withdrawCommission() external onlyActiveAgent nonReentrant {
+        Agent storage agent = agents[msg.sender];
+        uint256 amount = agent.totalCommission;
+        
+        require(amount > 0, "No commission to withdraw");
+        
+        agent.totalCommission = 0;
+        
+        // 轉移 USDT 到代理地址
+        // 注意：這裡需要實現 USDT 轉移邏輯
+        // 由於這是示例合約，實際實現需要集成 USDT 接口
+        
+        emit CommissionDistributed(
+            msg.sender,
+            amount,
+            block.timestamp
+        );
+    }
+    
+    /**
+     * @dev 提現用戶餘額
+     * @param amount 提現金額
+     */
+    function withdrawBalance(uint256 amount) external nonReentrant {
+        require(userBalances[msg.sender] >= amount, "Insufficient balance");
+        
+        userBalances[msg.sender] -= amount;
+        
+        // 轉移 USDT 到用戶地址
+        // 注意：這裡需要實現 USDT 轉移邏輯
+    }
+    
+    /**
+     * @dev 獲取支付信息
+     * @param paymentId 支付 ID
+     */
+    function getPayment(bytes32 paymentId) external view returns (Payment memory) {
+        return payments[paymentId];
+    }
+    
+    /**
+     * @dev 獲取訂單的支付信息
+     * @param orderId 訂單 ID
+     */
+    function getPaymentByOrder(uint256 orderId) external view returns (bytes32) {
+        return orderToPayment[orderId];
+    }
+    
+    /**
+     * @dev 檢查支付是否過期
+     * @param paymentId 支付 ID
+     */
+    function isPaymentExpired(bytes32 paymentId) external view returns (bool) {
+        Payment memory payment = payments[paymentId];
+        return payment.exists && block.timestamp > payment.expiresAt;
+    }
+    
+    /**
+     * @dev 更新配置參數
+     * @param _minPaymentAmount 最小支付金額
+     * @param _maxPaymentAmount 最大支付金額
+     * @param _paymentTimeout 支付超時時間
+     * @param _defaultConfirmations 默認確認數
+     */
+    function updateConfig(
+        uint256 _minPaymentAmount,
+        uint256 _maxPaymentAmount,
+        uint256 _paymentTimeout,
+        uint256 _defaultConfirmations
+    ) external onlyOwner {
+        minPaymentAmount = _minPaymentAmount;
+        maxPaymentAmount = _maxPaymentAmount;
+        paymentTimeout = _paymentTimeout;
+        defaultConfirmations = _defaultConfirmations;
+    }
+    
+    /**
+     * @dev 暫停合約
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+    
+    /**
+     * @dev 恢復合約
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+    
+    /**
+     * @dev 緊急提取合約中的 USDT
+     * @param to 接收地址
+     * @param amount 提取金額
+     */
+    function emergencyWithdraw(address to, uint256 amount) external onlyOwner {
+        // 實現緊急提取邏輯
+        // 注意：這裡需要實現 USDT 轉移邏輯
+    }
+    
+    // 內部函數
+    function _generatePaymentId() private returns (bytes32) {
+        uint256 currentId = _paymentIdCounter.current();
+        _paymentIdCounter.increment();
+        
+        return keccak256(abi.encodePacked(
+            block.timestamp,
+            msg.sender,
+            currentId
+        ));
+    }
+    
+    function _distributeCommission(address user, uint256 amount) private {
+        // 實現佣金分配邏輯
+        // 這裡可以根據用戶的代理等級分配佣金
+    }
+    
+    // 接收函數
+    receive() external payable {
+        revert("Contract does not accept ETH");
+    }
+    
+    // 回退函數
+    fallback() external {
+        revert("Invalid function call");
+    }
+}

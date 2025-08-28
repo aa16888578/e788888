@@ -1,0 +1,36 @@
+{
+	"name": "fire-s-extension-pack",
+	"displayName": "Fire's Extension Pack",
+	"description": "Fire's Extension Pack",
+	"version": "0.7.0",
+	"publisher": "fire",
+	"repository": "https://github.com/fire/fire-s-extension-pack.git",
+	"engines": {
+		"vscode": "^1.63.0"
+	},
+	"categories": [
+		"Extension Packs"
+	],
+	"extensionPack": [
+		"amoosbr.markdown-nomnoml",
+		"cschlosser.doxdocgen",
+		"jbockle.jbockle-format-files",
+		"jeff-hykin.better-cpp-syntax",
+		"jjkim.gdscript",
+		"ms-vscode-remote.remote-containers",
+		"ms-vscode-remote.remote-ssh",
+		"ms-vscode-remote.remote-wsl",
+		"ms-vscode.cpptools",
+		"ms-vscode.cpptools-extension-pack",
+		"ms-vscode.cpptools-themes",
+		"Razoric.gdscript-toolkit-formatter",
+		"vadimcn.vscode-lldb",
+		"esbenp.prettier-vscode",
+		"JakeBecker.elixir-ls"
+	],
+	"__metadata": {
+		"installedTimestamp": 1756219484796,
+		"targetPlatform": "universal",
+		"size": 5785
+	}
+}

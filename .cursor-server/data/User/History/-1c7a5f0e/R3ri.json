@@ -1,0 +1,75 @@
+{
+  "name": "cvvbot-multi-platform",
+  "version": "2.1.0",
+  "description": "多平台電商系統 - 整合Telegram Bot、MiniWeb、管理後台、代理系統和支付系統",
+  "main": "index.js",
+  "scripts": {
+    "dev": "bash scripts/dev.sh",
+    "dev:admin": "cd admin && npm run dev",
+    "dev:web": "cd web && npm run dev",
+    "dev:functions": "cd functions && npm run dev",
+    "build": "bash scripts/build.sh",
+    "build:admin": "cd admin && npm run build",
+    "build:web": "cd web && npm run build",
+    "build:functions": "cd functions && npm run build",
+    "deploy": "npm run deploy:functions && npm run deploy:web && npm run deploy:admin",
+    "deploy:functions": "cd functions && firebase deploy --only functions",
+    "deploy:web": "cd web && firebase deploy --only hosting",
+    "deploy:admin": "cd admin && vercel --prod",
+    "install:all": "npm install && cd admin && npm install && cd ../web && npm install && cd ../functions && npm install",
+    "clean": "npm run clean:admin && npm run clean:web && npm run clean:functions",
+    "clean:admin": "cd admin && rm -rf .next out dist",
+    "clean:web": "cd web && rm -rf .next out dist",
+    "clean:functions": "cd functions && rm -rf dist",
+    "lint": "npm run lint:admin && npm run lint:web && npm run lint:functions",
+    "lint:admin": "cd admin && npm run lint",
+    "lint:web": "cd web && npm run lint",
+    "lint:functions": "cd functions && npm run lint",
+    "test": "npm run test:admin && npm run test:web && npm run test:functions",
+    "test:admin": "cd admin && npm run test",
+    "test:web": "cd web && npm run test",
+    "test:functions": "cd functions && npm run test",
+    "start": "npm run start:functions",
+    "start:functions": "cd functions && npm start",
+    "stop": "bash scripts/stop.sh",
+    "status": "bash scripts/status.sh",
+    "restart": "npm run stop && npm run dev",
+    "logs": "bash scripts/logs.sh",
+    "check-compatibility": "node scripts/check-compatibility.js",
+    "update-deps": "node scripts/update-dependencies.js",
+    "fix-versions": "npm run update-deps && npm run install:all"
+  },
+  "keywords": [
+    "telegram-bot",
+    "ecommerce",
+    "pwa",
+    "nextjs",
+    "firebase",
+    "blockchain",
+    "usdt",
+    "agent-system",
+    "payment-system"
+  ],
+  "author": "ShopBot Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": "18.x",
+    "npm": ">=8.0.0"
+  },
+  "workspaces": [
+    "admin",
+    "web",
+    "functions"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/shopbot-multi-platform.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/shopbot-multi-platform/issues"
+  },
+  "homepage": "https://github.com/your-org/shopbot-multi-platform#readme"
+}

@@ -1,0 +1,65 @@
+{
+  "name": "ShopBot MiniWeb",
+  "short_name": "ShopBot",
+  "description": "輕量級電商購物體驗",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4285f4",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "zh-TW",
+  "dir": "ltr",
+  "categories": ["shopping", "business", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "瀏覽商品",
+      "short_name": "商品",
+      "description": "快速瀏覽商品目錄",
+      "url": "/products",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "購物車",
+      "short_name": "購物車",
+      "description": "查看購物車內容",
+      "url": "/cart",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "訂單追蹤",
+      "short_name": "訂單",
+      "description": "追蹤訂單狀態",
+      "url": "/orders",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

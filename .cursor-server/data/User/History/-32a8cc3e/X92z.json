@@ -1,0 +1,15 @@
+{
+    "remote.SSH.remotePlatform": {
+        "gcp-server": "linux"
+    },
+    "geminicodeassist.project": "bright-gecko-hsrvg",
+    "json.schemaDownload.enable": true,
+    "cursor.composer.shouldAllowCustomModes": true,
+    "workbench.editor.enablePreview": false,
+    "cursor.composer.usageSummaryDisplay": "never",
+    "cursor.terminal.usePreviewBox": true,
+    "update.releaseTrack": "prerelease",
+    "cursor.cmdk.useThemedDiffBackground2": false,
+    "cursor.composer.shouldChimeAfterChatFinishes": true,
+    "window.commandCenter": true
+}

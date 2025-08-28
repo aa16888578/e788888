@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 允許機器人服務帳戶讀寫所有文檔
+    match /{document=**} {
+      allow read, write: if request.auth != null || 
+                         request.auth.token.firebase.sign_in_provider == 'service_account';
+    }
+    
+    // CVV 卡片集合
+    match /cvv_cards/{cardId} {
+      allow read, write: if true; // 機器人需要讀寫 CVV 數據
+    }
+    
+    // 用戶集合
+    match /users/{userId} {
+      allow read, write: if true; // 機器人需要管理用戶數據
+    }
+    
+    // 配置集合
+    match /configs/{configId} {
+      allow read, write: if true; // 機器人需要讀寫配置
+    }
+    
+    // 支付記錄集合
+    match /payments/{paymentId} {
+      allow read, write: if true; // 機器人需要記錄支付
+    }
+    
+    // 健康檢查集合
+    match /_health_check/{docId} {
+      allow read, write: if true; // 允許健康檢查
+    }
+  }
+}

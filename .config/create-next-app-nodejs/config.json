@@ -1,0 +1,6 @@
+{
+	"preferences": {
+		"linter": "eslint",
+		"eslint": true
+	}
+}

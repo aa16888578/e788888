@@ -1,0 +1,47 @@
+
+# CVV Python Bot 環境變量配置
+
+# 應用配置
+APP_NAME=CVV Bot API
+VERSION=1.0.0
+DEBUG=true
+HOST=0.0.0.0
+PORT=8000
+
+# API 配置
+API_V1_STR=/api/v1
+
+# Telegram Bot 配置
+TELEGRAM_BOT_TOKEN=8469518342:AAHeryk_9wcaU6jYdrh7kzmFCfyFr5MIp-M
+TELEGRAM_WEBHOOK_URL=https://cvvbot-v2.web.app/webhook
+TELEGRAM_WEBHOOK_SECRET=cvv_bot_webhook_secret_2024
+
+# Firebase 配置
+FIREBASE_PROJECT_ID=cvvbot-v2
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDgt1ORIEYjSgAl\nHu37sRtGSh4W9904imfwykwaAiiDVyQTWkydskNKc8ljfKRjorCgE9McsNZ0yoZx\nu0shQR/o5EH3jTUHnm4b7nokLTqvN76h9B7pSeB6LWfd1SzcWB9oZCN6JWfmEOsq\nq3EkG/q6GXmFm1+MAtfudLupgHBROwhKx6YUeekN1ecgJ0nYNk7DmWyhKoOLG3sK\nljqHdUK5yUXE8nGVz4h5WAEQdMFVNMGJASREjp0tJNdP+VVzJy5W2KfnnLCzf7fk\nvJYpwcOAJCIwFlGtTWHHRtTGqq8yhd4k4HkHjkHxrKb2Fdp7odKT7iad7bxCi0iV\nygU3IEGjAgMBAAECggEAENneg+MCL3JEqYP0v6uLyo0TTZCfv7YtTjK1WzvvMs4t\nj9/1H9w2zJX7M6EsqKYSDab+7UdbhZ2MUGoFm8RI8stvIPOvVtdsFV8gPKdBn9MT\n0gw+5yqZkT/naoyqVQmsrUTZHjdA39FD+Uqq7NTGS/9ODBVXKGYsMB8D1ZWiloyt\nLYUKlET0G8JyZ0DMWe/WOTEg/DjdDe5GlQrBiNQnxrrkyEw/eJpMDKuu9/R02EPq\nVeF03Zt2TrA6mnMrhDRzOz9WfynTKnOPNNs32r4MPU2Fd5RTxKzUnm+xi+VaFa19\negsDOFWWq5D3CGEoBdn5gyfmNCstKe+miwiSti8rnQKBgQD+OsvI6a5uSzfQ3nSR\niUS3msR/tzMxswvwHwXtyd2mUY6o6YmzOO4rLal70E3J3WSeDazQec6bMu+HwF6g\nmvdtqzLSB/6VjcxQWBlT6NYIuzlyjBaaN/PWUB1rot6oOcBMpTeWUVEMgDImkbRp\nYhjbIVeU855hOF4J57Q/zFww5wKBgQDiR+r7O7+pSs5Qgn0PoFNh69dWo87HWGvS\nHJbpS4Drg06qwVy5AVfI6rPg7FDpAFRQSllQsHQDAufPgzfxsWgePcI8/LGLd3IM\nZRrSeAm1cAwdQqbo6x8wFZsFgvjaMr6vMEzNLil3VHukcm9u6Vno4aZ2yGy3rWMA\n6rZurCwF5QKBgQDFv7Q9vk746bcr161yewShkFgiQ70lfnDdwTPaZ7fqI+xExQtg\nBft0SJtZfIjVaUlXi6mNrAGiRPd+b4rrgD7P5mesaZ2EdPykzjI9S5IYzpD74a2/\nHaCkZkLMM67fybQjqivX176ka58W0yUzB6Pv5zp52Rmr4616JOnW6j4XpwKBgAwl\njCmcVXeC+nw75Pa3xoIVJOQTuv/ccT1AJ6GyWeNKkyh7ZLzRo6K3ZpyGUvmO+Peu\nZgj8z91xhHwRMSmaOlqVOh4H+ofgC5E6xCvUIcFJmHzhnRAXvv7XyhCLrUwZOT8y\nOo0xEyzCrjhvpCeyAw+LPWJW8+8QMaZU8yIRv/M5AoGAcFCPeEtkPVysqxq+Tvso\nYzA3hnhv5MTDg4pEN8HuqMl9J1XoVigJEUX9Yhr1WA553KEENAYNnpUBI/nIaV61\niX4CqWWxUYi261iSs3r6FsttPJ8kebdph1NaKCKU9H/+vxeu/Q8WfcG0jREgscyA\nQcA4ejeKPQbr8kHz6fHL+7Y=\n-----END PRIVATE KEY-----\n"
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-fbsvc@cvvbot-v2.iam.gserviceaccount.com
+FIREBASE_DATABASE_URL=https://cvvbot-v2-default-rtdb.firebaseio.com/
+# 在 .env 檔案中添加以下欄位
+FIREBASE_PRIVATE_KEY_ID=d5c084b5041ddf2656eec5b4c897735e3063e5b3
+FIREBASE_AUTH_URI=https://www.googleapis.com/o/oauth2/auth
+FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
+FIREBASE_AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+FIREBASE_CLIENT_X509_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40cvvbot-v2.iam.gserviceaccount.com
+FIREBASE_UNIVERSE_DOMAIN=googleapis.com
+# 安全配置
+SECRET_KEY=cvv_bot_secret_key_32_chars_long_2024_production
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+ENCRYPTION_KEY=cvv_encryption_key_32_bytes_long_2024_prod
+
+# 支付配置
+TRON_NETWORK=mainnet
+USDT_CONTRACT_ADDRESS=TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+
+# CVV 配置
+CVV_ENCRYPTION_ENABLED=true
+CVV_BATCH_SIZE=1000
+CVV_CACHE_TTL=3600
+
+# 代理商佣金配置
+AGENT_COMMISSION_RATES={"1": 0.05, "2": 0.08, "3": 0.12, "4": 0.15, "5": 0.18}

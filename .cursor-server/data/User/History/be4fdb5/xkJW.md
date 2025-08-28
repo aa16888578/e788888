@@ -1,0 +1,261 @@
+# 🚀 ShopBot 多平台電商系統
+
+> 整合 Telegram Bot、MiniWeb、管理後台、代理系統和支付系統的完整電商解決方案
+
+## 📋 **項目概述**
+
+ShopBot 是一個創新的多平台電商管理系統，整合了多個平台和功能模組，為用戶提供全方位的電商體驗。
+
+### 🌟 **核心特色**
+
+- **🤖 Telegram Bot**: 24/7 智能購物助手
+- **🌐 MiniWeb**: 輕量級 PWA 購物體驗
+- **🖥️ 管理後台**: 完整的電商管理系統
+- **🏢 代理系統**: 多層級分銷和佣金管理
+- **💰 支付系統**: USDT-TRC20 加密貨幣支付
+
+## 🏗️ **系統架構**
+
+```
+偉大/
+├── 📁 admin/           # 管理後台 (Next.js 15 + TypeScript)
+├── 📁 web/             # MiniWeb (PWA + Vite)
+├── 📁 functions/       # 後端服務 (Firebase Functions)
+├── 📁 對話/            # 項目文檔和進度
+├── 📄 package.json     # 總管家配置
+├── 📄 .env.example     # 統一環境配置
+└── 📄 README.md        # 項目說明
+```
+
+## 🚀 **快速開始**
+
+### **1. 安裝依賴**
+
+```bash
+# 安裝所有子項目的依賴
+npm run install:all
+
+# 或者分別安裝
+npm install
+cd admin && npm install
+cd ../web && npm install
+cd ../functions && npm install
+```
+
+### **2. 環境配置**
+
+```bash
+# 複製環境配置文件
+cp .env.example .env.local
+
+# 編輯 .env.local 文件，填入實際配置值
+```
+
+### **3. 開發模式**
+
+```bash
+# 同時啟動所有服務
+npm run dev
+
+# 或者分別啟動
+npm run dev:admin      # 管理後台 (http://localhost:3001)
+npm run dev:web        # MiniWeb (http://localhost:3002)
+npm run dev:functions  # 後端服務 (http://localhost:5001)
+```
+
+### **4. 構建部署**
+
+```bash
+# 構建所有項目
+npm run build
+
+# 部署到生產環境
+npm run deploy
+```
+
+## 📱 **平台功能**
+
+### **🤖 Telegram Bot**
+- 智能商品搜尋和推薦
+- 購物車管理和訂單處理
+- 24/7 客服支援
+- 代理系統集成
+
+### **🌐 MiniWeb**
+- 響應式設計，支持所有設備
+- PWA 功能，可安裝為應用
+- 離線支持和快速加載
+- 與 Telegram Bot 數據同步
+
+### **🖥️ 管理後台**
+- 完整的商品和訂單管理
+- 用戶管理和權限控制
+- 數據分析和可視化
+- 代理系統管理
+
+### **🏢 代理系統**
+- 5個等級的代理架構
+- 智能佣金計算引擎
+- 團隊管理和業績追蹤
+- 提現和獎勵系統
+
+### **💰 支付系統**
+- USDT-TRC20 支付支持
+- 智能合約集成
+- 多錢包管理
+- 實時匯率轉換
+
+## 🛠️ **技術棧**
+
+### **前端技術**
+- **Next.js 15**: React 全棧框架
+- **TypeScript 5**: 類型安全的 JavaScript
+- **Tailwind CSS 4**: 實用優先的 CSS 框架
+- **Vite**: 快速的構建工具
+
+### **後端技術**
+- **Firebase Functions**: 無服務器後端
+- **Firestore**: NoSQL 數據庫
+- **Firebase Auth**: 身份認證
+- **Firebase Storage**: 文件存儲
+
+### **區塊鏈技術**
+- **Tron Network**: USDT-TRC20 支持
+- **智能合約**: 自動化支付和佣金分發
+- **多錢包支持**: 熱錢包、冷錢包、佣金錢包
+
+### **開發工具**
+- **ESLint**: 代碼質量檢查
+- **Prettier**: 代碼格式化
+- **Git**: 版本控制
+- **Docker**: 容器化部署
+
+## 📊 **項目進度**
+
+- **✅ 第一階段**: 基礎架構 (100%)
+- **✅ 第二階段**: Telegram Bot (100%)
+- **✅ 第三階段**: MiniWeb (100%)
+- **✅ 第四階段**: 管理後台 (100%)
+- **✅ 第五階段**: 代理系統 (100%)
+- **✅ 第六階段**: 支付系統 (100%)
+- **🔄 第七階段**: 整合測試 (進行中)
+
+**總體進度: 6/7 階段 (85.7%)**
+
+## 🔧 **常用命令**
+
+```bash
+# 開發相關
+npm run dev              # 啟動所有開發服務
+npm run dev:admin        # 啟動管理後台
+npm run dev:web          # 啟動 MiniWeb
+npm run dev:functions    # 啟動後端服務
+
+# 構建相關
+npm run build            # 構建所有項目
+npm run build:admin      # 構建管理後台
+npm run build:web        # 構建 MiniWeb
+npm run build:functions  # 構建後端服務
+
+# 部署相關
+npm run deploy           # 部署所有項目
+npm run deploy:admin     # 部署管理後台
+npm run deploy:web       # 部署 MiniWeb
+npm run deploy:functions # 部署後端服務
+
+# 維護相關
+npm run clean            # 清理所有構建文件
+npm run lint             # 檢查所有項目代碼
+npm run test             # 運行所有測試
+npm run install:all      # 安裝所有依賴
+```
+
+## 📁 **項目結構詳解**
+
+### **管理後台 (admin/)**
+```
+src/
+├── app/                 # Next.js App Router
+├── components/          # React 組件
+├── hooks/              # 自定義 Hooks
+├── lib/                # 工具庫和服務
+└── types/              # TypeScript 類型定義
+```
+
+### **MiniWeb (web/)**
+```
+src/
+├── components/          # React 組件
+├── pages/              # 頁面組件
+├── hooks/              # 自定義 Hooks
+├── services/           # API 服務
+└── utils/              # 工具函數
+```
+
+### **後端服務 (functions/)**
+```
+src/
+├── services/           # 業務邏輯服務
+├── routes/             # API 路由
+├── types/              # 類型定義
+├── middleware/         # 中間件
+└── utils/              # 工具函數
+```
+
+## 🔒 **安全特性**
+
+- **身份驗證**: 基於 Telegram 用戶 ID 的認證
+- **權限控制**: 角色基礎的訪問控制
+- **數據加密**: 敏感數據加密存儲
+- **安全支付**: 區塊鏈級別的安全驗證
+- **CORS 保護**: 跨域請求安全控制
+
+## 📈 **性能優化**
+
+- **代碼分割**: 按需加載組件和頁面
+- **圖片優化**: 自動圖片壓縮和格式轉換
+- **緩存策略**: 多層級緩存優化
+- **PWA 支持**: 離線功能和快速加載
+- **CDN 集成**: 全球內容分發
+
+## 🚀 **部署選項**
+
+### **雲端部署**
+- **Firebase**: 後端服務和數據庫
+- **Vercel**: 管理後台部署
+- **Netlify**: MiniWeb 部署
+- **AWS**: 企業級部署
+
+### **本地部署**
+- **Docker**: 容器化部署
+- **本地服務器**: 私有雲部署
+- **混合部署**: 部分雲端，部分本地
+
+## 🤝 **貢獻指南**
+
+1. **Fork 項目**
+2. **創建功能分支** (`git checkout -b feature/AmazingFeature`)
+3. **提交更改** (`git commit -m 'Add some AmazingFeature'`)
+4. **推送到分支** (`git push origin feature/AmazingFeature`)
+5. **創建 Pull Request**
+
+## 📄 **許可證**
+
+本項目採用 MIT 許可證 - 查看 [LICENSE](LICENSE) 文件了解詳情。
+
+## 📞 **聯繫方式**
+
+- **項目維護者**: ShopBot Team
+- **郵箱**: support@shopbot.com
+- **Telegram**: @ShopBotSupport
+- **文檔**: [https://docs.shopbot.com](https://docs.shopbot.com)
+
+## 🙏 **致謝**
+
+感謝所有為這個項目做出貢獻的開發者、設計師和測試人員！
+
+---
+
+**⭐ 如果這個項目對您有幫助，請給我們一個星標！**
+
+**�� 讓我們一起打造更好的電商體驗！**

@@ -1,0 +1,7 @@
+{
+    "remote.SSH.remotePlatform": {
+        "gcp-server": "linux"
+    },
+    "geminicodeassist.project": "bright-gecko-hsrvg",
+    "json.schemaDownload.enable": true
+}

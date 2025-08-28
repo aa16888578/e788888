@@ -1,0 +1,101 @@
+{
+	"name": "cursor-usage",
+	"displayName": "Cursor Usage",
+	"description": "Track your remaining Cursor fast-premium requests in the status bar, with usage-based spending shown when exhausted",
+	"version": "1.3.0",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/YossiSaadi/cursor-usage-vscode-extension.git"
+	},
+	"author": "Yossi Saadi",
+	"publisher": "yossisa",
+	"engines": {
+		"vscode": "^1.74.0"
+	},
+	"icon": "./assets/logo.png",
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onStartupFinished",
+		"onCommand:cursorUsage.insertCookie",
+		"onCommand:cursorUsage.refresh"
+	],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "cursorUsage.insertCookie",
+				"title": "Insert cookie value",
+				"category": "Cursor Usage Extension"
+			},
+			{
+				"command": "cursorUsage.refresh",
+				"title": "Refresh Usage",
+				"category": "Cursor Usage Extension"
+			},
+			{
+				"command": "cursorUsage.forceRefresh",
+				"title": "Force Re-initialize",
+				"category": "Cursor Usage Extension"
+			},
+			{
+				"command": "cursorUsage.openSettings",
+				"title": "Open Settings",
+				"category": "Cursor Usage Extension"
+			},
+			{
+				"command": "cursorUsage.setTeamId",
+				"title": "Set Team ID",
+				"category": "Cursor Usage Extension"
+			},
+			{
+				"command": "cursorUsage.setPollMinutes",
+				"title": "Set Poll Interval",
+				"category": "Cursor Usage Extension"
+			}
+		],
+		"configuration": {
+			"title": "Cursor Usage",
+			"properties": {
+				"cursorUsage.pollMinutes": {
+					"type": "number",
+					"default": 30,
+					"description": "How often to refresh the remaining requests count (in minutes)",
+					"minimum": 1
+				},
+				"cursorUsage.teamId": {
+					"type": "string",
+					"default": "",
+					"description": "(Optional) Your Cursor Team ID. Leave empty or set to 'auto' to auto-detect. If you belong to multiple teams, specify which one to track. Find the ID in your browser's developer tools (in the 'teams' API request) when viewing the Cursor dashboard."
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "yarn compile --minify",
+		"compile": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+		"watch": "yarn compile --watch",
+		"package": "vsce package --no-dependencies",
+		"publish:ovsx": "dotenv -e .env -- npx ovsx publish"
+	},
+	"devDependencies": {
+		"@types/node": "^20.12.0",
+		"@types/vscode": "^1.74.0",
+		"@vscode/vsce": "^2.21.1",
+		"dotenv-cli": "^8.0.0",
+		"esbuild": "^0.19.5",
+		"prettier": "^3.6.2",
+		"typescript": "^4.9.4"
+	},
+	"dependencies": {},
+	"resolutions": {
+		"undici": "5.28.3"
+	},
+	"__metadata": {
+		"installedTimestamp": 1756259257435,
+		"targetPlatform": "universal",
+		"size": 42359
+	}
+}

@@ -1,0 +1,12 @@
+specVersion: "v1"
+serviceId: "ccvbot-8578-service"
+location: "asia-east1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "ccvbot-8578-database"
+      cloudSql:
+        instanceId: "ccvbot-8578-instance"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./example"]
