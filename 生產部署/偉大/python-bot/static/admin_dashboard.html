@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVV Bot 管理後台 - AI分類系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .header p {
+            color: #718096;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096, #4a5568);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+        }
+        
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .search-tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .search-tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .search-content {
+            display: none;
+        }
+        
+        .search-content.active {
+            display: block;
+        }
+        
+        .results-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-item {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .result-title {
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .result-meta {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+        
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .success {
+            background: #c6f6d5;
+            color: #2f855a;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 標題 -->
+        <div class="header">
+            <h1>🚀 CVV Bot 管理後台</h1>
+            <p>AI分類系統 + 庫存管理 + 統計分析</p>
+        </div>
+        
+        <!-- 儀表板統計 -->
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2>📊 庫存概況</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-cards">-</div>
+                        <div class="stat-label">總卡片數</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="active-cards">-</div>
+                        <div class="stat-label">活躍卡片</div>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="all-cards">-</div>
+                        <div class="stat-label">全資庫</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="naked-cards">-</div>
+                        <div class="stat-label">裸資庫</div>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="special-cards">-</div>
+                        <div class="stat-label">特價庫</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="ai-classified">-</div>
+                        <div class="stat-label">AI分類</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🎯 AI分類管理</h2>
+                <div class="form-group">
+                    <label for="cvv-data">CVV數據輸入</label>
+                    <textarea id="cvv-data" rows="4" placeholder="輸入CVV數據，格式：國家代碼_國家（國旗圖）_庫別_卡號_有效日期_安全碼_姓名_電話_售價_剩下信息"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="target-library">目標庫存</label>
+                    <select id="target-library">
+                        <option value="auto">自動判斷</option>
+                        <option value="全資庫">全資庫</option>
+                        <option value="裸資庫">裸資庫</option>
+                        <option value="特價庫">特價庫</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" onclick="classifyCVV()">🤖 AI分類</button>
+                <button class="btn btn-secondary" onclick="showBatchUpload()">📁 批量上傳</button>
+            </div>
+            
+            <div class="card">
+                <h2>📈 銷售統計</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="today-sales">-</div>
+                        <div class="stat-label">今日銷售</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="week-sales">-</div>
+                        <div class="stat-label">本週銷售</div>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="month-sales">-</div>
+                        <div class="stat-label">本月銷售</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-revenue">-</div>
+                        <div class="stat-label">總收入</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🔍 搜尋系統</h2>
+                <div class="form-group">
+                    <label for="search-type">搜尋類型</label>
+                    <select id="search-type" onchange="showSearchTab()">
+                        <option value="card_prefix">搜尋卡頭（前六碼）</option>
+                        <option value="country">按國家搜尋</option>
+                        <option value="category">按庫別搜尋</option>
+                        <option value="price_range">按價格範圍</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="search-value">搜尋值</label>
+                    <input type="text" id="search-value" placeholder="輸入搜尋條件">
+                </div>
+                <button class="btn btn-secondary" onclick="searchCards()">🔍 搜尋</button>
+            </div>
+        </div>
+        
+        <!-- 批量上傳區域 -->
+        <div class="card" id="batch-upload" style="display: none;">
+            <h2>📁 批量CVV上傳</h2>
+            <div class="form-group">
+                <label for="batch-file">選擇TXT文件</label>
+                <input type="file" id="batch-file" accept=".txt" onchange="handleFileSelect(event)">
+            </div>
+            <div class="form-group">
+                <label for="batch-target-library">目標庫存</label>
+                <select id="batch-target-library">
+                    <option value="auto">自動判斷</option>
+                    <option value="全資庫">全資庫</option>
+                    <option value="裸資庫">裸資庫</option>
+                    <option value="特價庫">特價庫</option>
+                </select>
+            </div>
+            <button class="btn btn-success" onclick="uploadBatchFile()">🚀 批量分類</button>
+            <button class="btn btn-secondary" onclick="hideBatchUpload()">❌ 取消</button>
+        </div>
+        
+        <!-- 搜尋結果 -->
+        <div class="results-section" id="search-results" style="display: none;">
+            <h2>🔍 搜尋結果</h2>
+            <div id="results-content">
+                <div class="loading">等待搜尋...</div>
+            </div>
+        </div>
+        
+        <!-- 最近活動 -->
+        <div class="card">
+            <h2>📝 最近活動</h2>
+            <div id="recent-activities">
+                <div class="loading">載入中...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 全局變數
+        let currentAdminId = 'admin_001'; // 這裡應該從登入系統獲取
+        
+        // 頁面載入時獲取統計信息
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardStats();
+            loadRecentActivities();
+        });
+        
+        // 載入儀表板統計
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch(`/api/admin/dashboard/stats?admin_user_id=${currentAdminId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // 更新庫存統計
+                    document.getElementById('total-cards').textContent = data.total_cards;
+                    document.getElementById('active-cards').textContent = data.active_cards;
+                    document.getElementById('all-cards').textContent = data.category_stats['全資庫']?.total || 0;
+                    document.getElementById('naked-cards').textContent = data.category_stats['裸資庫']?.total || 0;
+                    document.getElementById('special-cards').textContent = data.category_stats['特價庫']?.total || 0;
+                    document.getElementById('ai-classified').textContent = data.ai_classification_stats.total_ai_classified || 0;
+                    
+                    // 更新銷售統計
+                    document.getElementById('today-sales').textContent = data.sales_stats.today_sales || 0;
+                    document.getElementById('week-sales').textContent = data.sales_stats.week_sales || 0;
+                    document.getElementById('month-sales').textContent = data.sales_stats.month_sales || 0;
+                    document.getElementById('total-revenue').textContent = `$${data.sales_stats.total_revenue || 0}`;
+                } else {
+                    console.error('載入統計失敗:', data.message);
+                }
+            } catch (error) {
+                console.error('載入統計錯誤:', error);
+            }
+        }
+        
+        // 載入最近活動
+        async function loadRecentActivities() {
+            try {
+                const response = await fetch(`/api/admin/dashboard/stats?admin_user_id=${currentAdminId}`);
+                const data = await response.json();
+                
+                if (response.ok && data.recent_activities) {
+                    const activitiesContainer = document.getElementById('recent-activities');
+                    activitiesContainer.innerHTML = '';
+                    
+                    data.recent_activities.forEach(activity => {
+                        const activityDiv = document.createElement('div');
+                        activityDiv.className = 'result-item';
+                        activityDiv.innerHTML = `
+                            <div class="result-header">
+                                <div class="result-title">${activity.description}</div>
+                                <div class="result-meta">${new Date(activity.timestamp).toLocaleString()}</div>
+                            </div>
+                            <div>操作類型: ${activity.type}</div>
+                            <div>用戶: ${activity.user}</div>
+                        `;
+                        activitiesContainer.appendChild(activityDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('載入活動錯誤:', error);
+            }
+        }
+        
+        // AI分類CVV
+        async function classifyCVV() {
+            const cvvData = document.getElementById('cvv-data').value.trim();
+            const targetLibrary = document.getElementById('target-library').value;
+            
+            if (!cvvData) {
+                alert('請輸入CVV數據');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/ai/classify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        cvv_data: cvvData,
+                        admin_user_id: currentAdminId,
+                        target_library: targetLibrary
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ ${data.message}\n卡片ID: ${data.card_id}\n目標庫存: ${data.target_library}`);
+                    document.getElementById('cvv-data').value = '';
+                    loadDashboardStats(); // 重新載入統計
+                } else {
+                    alert(`❌ ${data.message}`);
+                }
+            } catch (error) {
+                console.error('AI分類錯誤:', error);
+                alert('AI分類失敗，請稍後再試');
+            }
+        }
+        
+        // 顯示批量上傳
+        function showBatchUpload() {
+            document.getElementById('batch-upload').style.display = 'block';
+        }
+        
+        // 隱藏批量上傳
+        function hideBatchUpload() {
+            document.getElementById('batch-upload').style.display = 'none';
+        }
+        
+        // 處理文件選擇
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type !== 'text/plain') {
+                alert('請選擇TXT文件');
+                event.target.value = '';
+            }
+        }
+        
+        // 上傳批量文件
+        async function uploadBatchFile() {
+            const fileInput = document.getElementById('batch-file');
+            const targetLibrary = document.getElementById('batch-target-library').value;
+            
+            if (!fileInput.files[0]) {
+                alert('請選擇文件');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('admin_user_id', currentAdminId);
+            formData.append('target_library', targetLibrary);
+            
+            try {
+                const response = await fetch('/api/admin/ai/classify/batch', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ ${data.message}\n總數: ${data.total}\n成功: ${data.success_count}\n失敗: ${data.error_count}`);
+                    fileInput.value = '';
+                    hideBatchUpload();
+                    loadDashboardStats(); // 重新載入統計
+                } else {
+                    alert(`❌ ${data.message}`);
+                }
+            } catch (error) {
+                console.error('批量上傳錯誤:', error);
+                alert('批量上傳失敗，請稍後再試');
+            }
+        }
+        
+        // 搜尋卡片
+        async function searchCards() {
+            const searchType = document.getElementById('search-type').value;
+            const searchValue = document.getElementById('search-value').value.trim();
+            
+            if (!searchValue) {
+                alert('請輸入搜尋條件');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/search/cards', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        search_type: searchType,
+                        search_value: searchValue,
+                        filters: searchType === 'price_range' ? { min_price: 0, max_price: parseFloat(searchValue) } : null
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displaySearchResults(data);
+                } else {
+                    alert(`❌ ${data.message}`);
+                }
+            } catch (error) {
+                console.error('搜尋錯誤:', error);
+                alert('搜尋失敗，請稍後再試');
+            }
+        }
+        
+        // 顯示搜尋結果
+        function displaySearchResults(data) {
+            const resultsSection = document.getElementById('search-results');
+            const resultsContent = document.getElementById('results-content');
+            
+            resultsSection.style.display = 'block';
+            
+            if (data.results_count === 0) {
+                resultsContent.innerHTML = '<div class="loading">沒有找到匹配的結果</div>';
+                return;
+            }
+            
+            let html = `<h3>找到 ${data.results_count} 個結果</h3>`;
+            
+            data.results.forEach(result => {
+                html += `
+                    <div class="result-item">
+                        <div class="result-header">
+                            <div class="result-title">${result.country_name} - ${result.card_type}</div>
+                            <div class="result-meta">庫存: ${result.library}</div>
+                        </div>
+                        <div>卡號: ${result.card_number}</div>
+                        <div>有效期: ${result.expiry_date}</div>
+                        <div>持卡人: ${result.cardholder_name}</div>
+                        <div>建議價格: $${result.suggested_price}</div>
+                        <div>信心度: ${(result.confidence * 100).toFixed(1)}%</div>
+                    </div>
+                `;
+            });
+            
+            resultsContent.innerHTML = html;
+        }
+        
+        // 顯示搜尋標籤
+        function showSearchTab() {
+            const searchType = document.getElementById('search-type').value;
+            const searchValue = document.getElementById('search-value');
+            
+            if (searchType === 'price_range') {
+                searchValue.placeholder = '輸入最大價格';
+            } else if (searchType === 'card_prefix') {
+                searchValue.placeholder = '輸入卡號前六碼';
+            } else if (searchType === 'country') {
+                searchValue.placeholder = '輸入國家名稱';
+            } else if (searchType === 'category') {
+                searchValue.placeholder = '選擇: 全資庫, 裸資庫, 特價庫';
+            }
+        }
+    </script>
+</body>
+</html>

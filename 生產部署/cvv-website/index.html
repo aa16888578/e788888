@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVV Bot 統一平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .feature-desc {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin: 60px 0;
+        }
+        
+        .telegram-btn {
+            display: inline-block;
+            background: #0088cc;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 10px;
+            transition: background 0.3s ease;
+        }
+        
+        .telegram-btn:hover {
+            background: #006699;
+        }
+        
+        .web-btn {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .web-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .status {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 40px 0;
+        }
+        
+        .status-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
+        .status-online {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            opacity: 0.8;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 60px;
+        }
+        
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .telegram-btn, .web-btn {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">💳 CVV Bot</div>
+            <div class="subtitle">專業的 CVV 交易統一平台</div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <div class="feature-title">Telegram Bot</div>
+                <div class="feature-desc">
+                    智能 Telegram 機器人，支援回覆鍵盤操作，提供完整的 CVV 交易功能，包含 AI 智能篩選和銀行 BIN 分析。
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <div class="feature-title">Web 管理平台</div>
+                <div class="feature-desc">
+                    完整的 Next.js 動態網站，包含管理後台、AI 分類系統、支付管理、代理商系統等全功能模塊。
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔥</div>
+                <div class="feature-title">AI 智能分類</div>
+                <div class="feature-desc">
+                    支援 OpenAI、Claude、Gemini 多種 AI 模型，自動解析 CVV 數據格式，智能識別國家、活率、庫存等信息。
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <div class="feature-title">USDT 支付系統</div>
+                <div class="feature-desc">
+                    支援 USDT-TRC20 自動支付，實時監控到賬狀態，完整的支付歷史記錄和統計分析功能。
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <div class="feature-title">代理商系統</div>
+                <div class="feature-desc">
+                    5級代理商權限管理，智能佣金計算，團隊裂變收益系統，月收入可達 $5,000+ 的高回報模式。
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <div class="feature-title">安全保護</div>
+                <div class="feature-desc">
+                    Firebase 企業級安全架構，敏感信息加密存儲，完整的用戶認證和權限控制系統。
+                </div>
+            </div>
+        </div>
+        
+        <div class="status">
+            <div class="status-title">📊 系統狀態</div>
+            <div class="status-item">
+                <span>Telegram Bot (@e7_69testbot)</span>
+                <span class="status-online">● 運行中</span>
+            </div>
+            <div class="status-item">
+                <span>Web 管理平台</span>
+                <span class="status-online">● 運行中</span>
+            </div>
+            <div class="status-item">
+                <span>API 後端服務</span>
+                <span class="status-online">● 運行中</span>
+            </div>
+            <div class="status-item">
+                <span>AI 分類系統</span>
+                <span class="status-online">● 運行中</span>
+            </div>
+            <div class="status-item">
+                <span>支付系統</span>
+                <span class="status-online">● 運行中</span>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <h2 style="margin-bottom: 30px;">🚀 立即開始使用</h2>
+            <a href="https://t.me/e7_69testbot" target="_blank" class="telegram-btn">
+                📱 啟動 Telegram Bot
+            </a>
+            <a href="http://10.140.0.2:3000" target="_blank" class="web-btn">
+                🌐 進入 Web 平台
+            </a>
+            <a href="admin.html" class="web-btn">
+                🖥️ 管理後台
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 CVV Bot 統一平台 | 版本 v5.0.0 | 完整動態系統</p>
+            <p style="margin-top: 10px; opacity: 0.7;">
+                🔧 技術架構: Next.js 15.5.0 + Python FastAPI + Firebase + Telegram Bot API
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // 簡單的狀態檢查
+        document.addEventListener('DOMContentLoaded', function() {
+            // 檢查 Telegram Bot 狀態
+            fetch('https://api.telegram.org/bot8469518342:AAG7odEC49CcWeBr6eJ9GbjGdFl5SzlwL54/getMe')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log('✅ Telegram Bot 狀態正常');
+                    }
+                })
+                .catch(err => console.log('⚠️ Telegram Bot 狀態檢查失敗'));
+            
+            // 檢查 Web 平台狀態
+            fetch('http://10.140.0.2:3000')
+                .then(response => {
+                    if (response.ok) {
+                        console.log('✅ Web 平台狀態正常');
+                    }
+                })
+                .catch(err => console.log('⚠️ Web 平台狀態檢查失敗'));
+        });
+    </script>
+</body>
+</html>

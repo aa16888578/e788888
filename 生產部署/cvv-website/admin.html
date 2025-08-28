@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVV Bot 管理後台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            margin-top: 80px;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            padding-top: 100px;
+        }
+        
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        
+        .sidebar-item {
+            display: block;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .sidebar-item:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .sidebar-item i {
+            margin-right: 10px;
+            width: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            margin-left: 280px;
+            width: calc(100% - 280px);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .card-desc {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .management-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        
+        .function-list {
+            list-style: none;
+        }
+        
+        .function-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .function-item:last-child {
+            border-bottom: none;
+        }
+        
+        .function-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .function-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #219a52;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                height: auto;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .container {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .dashboard-grid,
+            .management-sections {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">🖥️ CVV Bot 管理後台</div>
+            <div class="user-info">
+                <span>👤 管理員</span>
+                <span>|</span>
+                <span>🕒 <span id="current-time"></span></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <!-- 側邊欄 -->
+        <div class="sidebar">
+            <div class="sidebar-title">🚀 快速操作</div>
+            
+            <a href="ai-classifier.html" class="sidebar-item">
+                🤖 AI 分類系統
+            </a>
+            
+            <a href="ai-config.html" class="sidebar-item">
+                ⚙️ AI API 設置
+            </a>
+            
+            <a href="http://10.140.0.2:3000/admin/cvv-classifier" target="_blank" class="sidebar-item">
+                🔍 完整版分類器
+            </a>
+            
+            <a href="http://10.140.0.2:3000/admin/api-test" target="_blank" class="sidebar-item">
+                🧪 API 測試工具
+            </a>
+            
+            <a href="http://10.140.0.2:3000/admin/inventory" target="_blank" class="sidebar-item">
+                📦 庫存管理
+            </a>
+            
+            <a href="http://10.140.0.2:3000/admin/classification" target="_blank" class="sidebar-item">
+                📋 分類管理
+            </a>
+            
+            <a href="http://10.140.0.2:3000/admin/import" target="_blank" class="sidebar-item">
+                📥 數據導入
+            </a>
+            
+            <a href="http://10.140.0.2:3000/admin/telegram" target="_blank" class="sidebar-item">
+                📱 Telegram 管理
+            </a>
+            
+            <a href="https://t.me/e7_69testbot" target="_blank" class="sidebar-item">
+                🤖 測試 Bot
+            </a>
+            
+            <a href="http://10.140.0.2:3000/status" target="_blank" class="sidebar-item">
+                📊 系統狀態
+            </a>
+            
+            <a href="http://10.140.0.2:3000/settings" target="_blank" class="sidebar-item">
+                ⚙️ 系統設置
+            </a>
+            
+            <a href="https://console.firebase.google.com/project/cvvbot-v2/overview" target="_blank" class="sidebar-item">
+                🔥 Firebase 控制台
+            </a>
+        </div>
+        
+        <div class="container">
+            <!-- 數據統計 -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-icon">💳</div>
+                <div class="card-title">總 CVV 卡片</div>
+                <div class="card-value" id="total-cards">15,847</div>
+                <div class="card-desc">可用: 12,334 張</div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-icon">👥</div>
+                <div class="card-title">活躍用戶</div>
+                <div class="card-value" id="active-users">2,456</div>
+                <div class="card-desc">今日新增: 127 人</div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-icon">💰</div>
+                <div class="card-title">今日收益</div>
+                <div class="card-value" id="daily-revenue">$8,932</div>
+                <div class="card-desc">較昨日 +15.2%</div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-icon">📊</div>
+                <div class="card-title">成功率</div>
+                <div class="card-value" id="success-rate">87.3%</div>
+                <div class="card-desc">過去 24 小時</div>
+            </div>
+        </div>
+        
+        <!-- 管理功能區域 -->
+        <div class="management-sections">
+            <!-- CVV 管理 -->
+            <div class="section">
+                <div class="section-title">💳 CVV 卡片管理</div>
+                <ul class="function-list">
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>🔍</span>
+                            <span>CVV 分類器</span>
+                        </div>
+                        <span class="function-status status-active">運行中</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>📦</span>
+                            <span>庫存管理</span>
+                        </div>
+                        <span class="function-status status-active">正常</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>📊</span>
+                            <span>數據統計</span>
+                        </div>
+                        <span class="function-status status-active">更新中</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>🔄</span>
+                            <span>自動導入</span>
+                        </div>
+                        <span class="function-status status-active">啟用</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 用戶管理 -->
+            <div class="section">
+                <div class="section-title">👥 用戶管理</div>
+                <ul class="function-list">
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>🔐</span>
+                            <span>用戶認證</span>
+                        </div>
+                        <span class="function-status status-active">Firebase</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>⭐</span>
+                            <span>權限管理</span>
+                        </div>
+                        <span class="function-status status-active">5級制</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>📱</span>
+                            <span>Telegram 整合</span>
+                        </div>
+                        <span class="function-status status-active">已連接</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>📈</span>
+                            <span>用戶分析</span>
+                        </div>
+                        <span class="function-status status-active">實時</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 支付系統 -->
+            <div class="section">
+                <div class="section-title">💰 支付系統</div>
+                <ul class="function-list">
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>₿</span>
+                            <span>USDT-TRC20</span>
+                        </div>
+                        <span class="function-status status-active">監控中</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>🔄</span>
+                            <span>自動確認</span>
+                        </div>
+                        <span class="function-status status-active">啟用</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>📊</span>
+                            <span>交易記錄</span>
+                        </div>
+                        <span class="function-status status-active">完整</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>💎</span>
+                            <span>佣金系統</span>
+                        </div>
+                        <span class="function-status status-active">自動</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 系統監控 -->
+            <div class="section">
+                <div class="section-title">🔧 系統監控</div>
+                <ul class="function-list">
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>🤖</span>
+                            <span>Telegram Bot</span>
+                        </div>
+                        <span class="function-status status-active">在線</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>🌐</span>
+                            <span>Web 服務器</span>
+                        </div>
+                        <span class="function-status status-active">運行中</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>🔥</span>
+                            <span>Firebase</span>
+                        </div>
+                        <span class="function-status status-active">連接中</span>
+                    </li>
+                    <li class="function-item">
+                        <div class="function-name">
+                            <span>🧠</span>
+                            <span>AI 服務</span>
+                        </div>
+                        <span class="function-status status-active">就緒</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    <!-- 登入模態框 -->
+    <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 400px; width: 90%;">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">🔐 管理員登入</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">用戶名：</label>
+                <input type="text" id="adminUsername" style="width: 100%; padding: 10px; border: 2px solid #ecf0f1; border-radius: 5px; font-size: 16px;" placeholder="請輸入管理員用戶名">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">密碼：</label>
+                <input type="password" id="adminPassword" style="width: 100%; padding: 10px; border: 2px solid #ecf0f1; border-radius: 5px; font-size: 16px;" placeholder="請輸入密碼">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Telegram ID：</label>
+                <input type="number" id="telegramId" style="width: 100%; padding: 10px; border: 2px solid #ecf0f1; border-radius: 5px; font-size: 16px;" placeholder="請輸入您的 Telegram ID">
+                <small style="color: #7f8c8d; margin-top: 5px; display: block;">發送 /start 給 @e7_69testbot 查看您的 ID</small>
+            </div>
+            
+            <button onclick="attemptLogin()" style="width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 15px;">
+                🚀 登入管理後台
+            </button>
+            
+            <div id="loginError" style="color: #e74c3c; text-align: center; margin-top: 10px; display: none;"></div>
+            
+            <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #ecf0f1; color: #7f8c8d; font-size: 14px;">
+                <p>🔒 僅限授權管理員訪問</p>
+                <p>開發員: 5931779846 | 管理員: 7046315762</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 管理員認證配置
+        const ADMIN_CREDENTIALS = {
+            'admin': {
+                password: 'cvvbot2025',
+                telegramIds: [5931779846, 7046315762],
+                role: 'admin'
+            },
+            'developer': {
+                password: 'dev2025',
+                telegramIds: [5931779846],
+                role: 'developer'
+            }
+        };
+        
+        // 檢查登入狀態
+        function checkLoginStatus() {
+            const loginData = localStorage.getItem('cvvbot_admin_login');
+            if (loginData) {
+                try {
+                    const data = JSON.parse(loginData);
+                    const now = Date.now();
+                    
+                    // 檢查是否過期 (24小時)
+                    if (now - data.timestamp < 24 * 60 * 60 * 1000) {
+                        return data;
+                    } else {
+                        localStorage.removeItem('cvvbot_admin_login');
+                    }
+                } catch (e) {
+                    localStorage.removeItem('cvvbot_admin_login');
+                }
+            }
+            return null;
+        }
+        
+        // 顯示登入模態框
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 隱藏登入模態框
+        function hideLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 嘗試登入
+        function attemptLogin() {
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            const telegramId = parseInt(document.getElementById('telegramId').value.trim());
+            const errorDiv = document.getElementById('loginError');
+            
+            // 清除之前的錯誤
+            errorDiv.style.display = 'none';
+            
+            // 驗證輸入
+            if (!username || !password || !telegramId) {
+                showLoginError('請填寫所有必填欄位');
+                return;
+            }
+            
+            // 檢查用戶名和密碼
+            const userConfig = ADMIN_CREDENTIALS[username];
+            if (!userConfig || userConfig.password !== password) {
+                showLoginError('用戶名或密碼錯誤');
+                return;
+            }
+            
+            // 檢查 Telegram ID
+            if (!userConfig.telegramIds.includes(telegramId)) {
+                showLoginError('Telegram ID 未授權，請聯繫系統管理員');
+                return;
+            }
+            
+            // 登入成功
+            const loginData = {
+                username: username,
+                role: userConfig.role,
+                telegramId: telegramId,
+                timestamp: Date.now()
+            };
+            
+            localStorage.setItem('cvvbot_admin_login', JSON.stringify(loginData));
+            hideLoginModal();
+            
+            // 更新用戶信息顯示
+            updateUserDisplay(loginData);
+            
+            // 顯示成功消息
+            showSuccessMessage('登入成功！歡迎使用 CVV Bot 管理後台');
+        }
+        
+        // 顯示登入錯誤
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = '❌ ' + message;
+            errorDiv.style.display = 'block';
+        }
+        
+        // 顯示成功消息
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #27ae60; color: white; padding: 15px 25px; border-radius: 5px; z-index: 1001; box-shadow: 0 5px 15px rgba(0,0,0,0.3);';
+            successDiv.textContent = '✅ ' + message;
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                document.body.removeChild(successDiv);
+            }, 3000);
+        }
+        
+        // 更新用戶顯示
+        function updateUserDisplay(loginData) {
+            const userInfoSpan = document.querySelector('.user-info span:first-child');
+            if (userInfoSpan) {
+                userInfoSpan.textContent = `👤 ${loginData.role === 'developer' ? '開發員' : '管理員'} (${loginData.username})`;
+            }
+        }
+        
+        // 登出
+        function logout() {
+            if (confirm('確定要登出嗎？')) {
+                localStorage.removeItem('cvvbot_admin_login');
+                location.reload();
+            }
+        }
+        
+        // 頁面初始化
+        function initializePage() {
+            const loginData = checkLoginStatus();
+            
+            if (!loginData) {
+                // 未登入，顯示登入模態框
+                showLoginModal();
+                return;
+            }
+            
+            // 已登入，更新顯示
+            updateUserDisplay(loginData);
+            
+            // 添加登出按鈕
+            const userInfo = document.querySelector('.user-info');
+            if (userInfo && !document.getElementById('logoutBtn')) {
+                const logoutBtn = document.createElement('button');
+                logoutBtn.id = 'logoutBtn';
+                logoutBtn.textContent = '登出';
+                logoutBtn.style.cssText = 'background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 5px 15px; border-radius: 3px; cursor: pointer; margin-left: 15px;';
+                logoutBtn.onclick = logout;
+                userInfo.appendChild(logoutBtn);
+            }
+        }
+        
+        // 更新時間
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-TW', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('current-time').textContent = timeString;
+        }
+        
+        // 模擬數據更新
+        function updateDashboardData() {
+            const totalCards = document.getElementById('total-cards');
+            const activeUsers = document.getElementById('active-users');
+            const dailyRevenue = document.getElementById('daily-revenue');
+            const successRate = document.getElementById('success-rate');
+            
+            // 模擬實時數據變化
+            if (totalCards) {
+                const current = parseInt(totalCards.textContent.replace(',', ''));
+                totalCards.textContent = (current + Math.floor(Math.random() * 10)).toLocaleString();
+            }
+            
+            if (activeUsers) {
+                const current = parseInt(activeUsers.textContent.replace(',', ''));
+                activeUsers.textContent = (current + Math.floor(Math.random() * 5)).toLocaleString();
+            }
+            
+            if (dailyRevenue) {
+                const current = parseInt(dailyRevenue.textContent.replace('$', '').replace(',', ''));
+                dailyRevenue.textContent = '$' + (current + Math.floor(Math.random() * 100)).toLocaleString();
+            }
+            
+            if (successRate) {
+                const current = parseFloat(successRate.textContent.replace('%', ''));
+                const newRate = (current + (Math.random() - 0.5) * 0.5).toFixed(1);
+                successRate.textContent = newRate + '%';
+            }
+        }
+        
+        // 檢查系統狀態
+        function checkSystemStatus() {
+            // 檢查 Telegram Bot
+            fetch('https://api.telegram.org/bot8469518342:AAG7odEC49CcWeBr6eJ9GbjGdFl5SzlwL54/getMe')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log('✅ Telegram Bot 狀態正常');
+                    }
+                })
+                .catch(err => console.log('⚠️ Telegram Bot 狀態檢查失敗'));
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage(); // 首先檢查登入狀態
+            updateTime();
+            setInterval(updateTime, 1000);
+            setInterval(updateDashboardData, 30000); // 30秒更新一次數據
+            checkSystemStatus();
+            setInterval(checkSystemStatus, 300000); // 5分鐘檢查一次狀態
+        });
+    </script>
+</body>
+</html>

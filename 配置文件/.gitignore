@@ -1,0 +1,42 @@
+# 虛擬環境和依賴
+/venv/
+備份文件/
+臨時文件/
+*.pyc
+__pycache__/
+node_modules/
+.next/
+.cache/
+
+# 環境配置
+.env
+.env.*
+env.local
+
+# 日誌文件
+*.log
+日誌文件/
+
+# 系統文件
+.DS_Store
+.cursor-server/
+.config/
+.npm/
+.nvm/
+.vscode/
+
+# Firebase
+.firebase/
+database-debug.log
+dataconnect-debug.log
+dataconnect/.dataconnect/
+firestore-debug.log
+pglite-debug.log
+pubsub-debug.log
+
+# 構建文件
+package-lock.json
+
+# 備份文件
+python-bot/.env.backup
+python-bot/.env.save

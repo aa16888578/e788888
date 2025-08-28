@@ -1,7 +1,0 @@
-{
-    "remote.portsAttributes": {
-        "3000": {
-            "protocol": "https"
-        }
-    }
-}

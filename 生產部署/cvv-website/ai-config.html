@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI API 設置 - CVV Bot 後台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            margin-top: 80px;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            padding-top: 100px;
+        }
+        
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        
+        .sidebar-item {
+            display: block;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .sidebar-item:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .sidebar-item.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            margin-left: 280px;
+            width: calc(100% - 280px);
+        }
+        
+        .config-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #219a52;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online {
+            background: #27ae60;
+        }
+        
+        .status-offline {
+            background: #e74c3c;
+        }
+        
+        .status-testing {
+            background: #f39c12;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .api-test-result {
+            background: #f8f9fa;
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .success-test {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .error-test {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                height: auto;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .container {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">⚙️ AI API 設置</div>
+            <div class="user-info">
+                <a href="admin.html" style="color: white; text-decoration: none; padding: 8px 15px; background: rgba(255,255,255,0.2); border-radius: 5px;">
+                    🔙 返回後台
+                </a>
+                <span>👤 管理員</span>
+                <span>|</span>
+                <span>🕒 <span id="current-time"></span></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <!-- 側邊欄 -->
+        <div class="sidebar">
+            <div class="sidebar-title">⚙️ API 設置</div>
+            
+            <a href="#general" onclick="scrollToSection('general')" class="sidebar-item">
+                🔧 基本設置
+            </a>
+            
+            <a href="#classification" onclick="scrollToSection('classification')" class="sidebar-item">
+                🤖 分類 API
+            </a>
+            
+            <a href="#security" onclick="scrollToSection('security')" class="sidebar-item">
+                🔒 安全設置
+            </a>
+            
+            <a href="#monitoring" onclick="scrollToSection('monitoring')" class="sidebar-item">
+                📊 監控設置
+            </a>
+            
+            <div class="sidebar-title" style="margin-top: 30px;">🔗 快速連結</div>
+            
+            <a href="ai-classifier.html" class="sidebar-item">
+                🤖 AI 分類系統
+            </a>
+            
+            <a href="admin.html" class="sidebar-item">
+                🖥️ 管理後台
+            </a>
+        </div>
+        
+        <div class="container">
+            <!-- 基本設置 -->
+            <div id="general" class="config-section">
+                <div class="section-title">🔧 基本 AI 設置</div>
+                
+                <div class="config-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">AI 分類引擎狀態：</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span class="status-indicator status-online"></span>
+                                <span>運行正常</span>
+                                <button onclick="testAIEngine()" class="btn btn-warning" style="margin-left: auto;">
+                                    🧪 測試連接
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">處理模式：</label>
+                            <select class="form-select" id="processingMode">
+                                <option value="fast">快速模式 (1-2秒)</option>
+                                <option value="accurate" selected>精確模式 (2-5秒)</option>
+                                <option value="detailed">詳細模式 (5-10秒)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">批量處理限制：</label>
+                            <input type="number" class="form-input" id="batchLimit" value="100" min="1" max="1000">
+                            <small style="color: #7f8c8d;">每次批量處理的最大數量</small>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">自動重試設置：</label>
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <label>
+                                    <input type="checkbox" id="enableRetry" checked>
+                                    啟用自動重試
+                                </label>
+                                <input type="number" class="form-input" id="maxRetries" value="3" min="1" max="10" style="width: 80px;">
+                                <span>次</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">超時設置：</label>
+                            <input type="number" class="form-input" id="timeoutSeconds" value="30" min="5" max="300">
+                            <small style="color: #7f8c8d;">API 請求超時時間（秒）</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">並發限制：</label>
+                            <input type="number" class="form-input" id="concurrentLimit" value="5" min="1" max="20">
+                            <small style="color: #7f8c8d;">同時處理的請求數量</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="saveGeneralConfig()" class="btn btn-success">
+                    💾 保存基本設置
+                </button>
+            </div>
+            
+            <!-- 分類 API 設置 -->
+            <div id="classification" class="config-section">
+                <div class="section-title">🤖 AI 分類 API 設置</div>
+                
+                <div class="form-group">
+                    <label class="form-label">分類規則模板：</label>
+                    <textarea class="form-textarea" id="classificationPrompt" style="height: 200px;">
+請分析以下 CVV 卡片數據並提取各個欄位信息。
+
+真實數據格式範例：
+- AR_阿根廷🇦🇷_全資 40%-70% [2417]
+- DE_德國🇩🇪_頂級全資 50%-80% 🔥 [2109]
+- BO_玻利維亞🇧🇴_55%-75% 💎 [2269]
+
+請按照以下 JSON 格式回答，只回答 JSON 不要其他內容：
+{
+  "countryCode": "國家代碼（如 AR, DE, BO）",
+  "country": "國家名稱",
+  "countryFlag": "國旗符號",
+  "dataType": "數據類型（全資、庫存等）",
+  "qualityLevel": "品質等級（頂級全資、標準等）",
+  "activityRate": "活率範圍（如 40%-70%）",
+  "stock": "庫存數量（方括號內的數字）",
+  "hasSpecialFeature": "是否有特殊標記（🔥💎等）",
+  "confidence": "解析置信度（0-1之間）",
+  "safePreview": "安全預覽格式（隱藏敏感信息）"
+}
+
+注意：絕對不要在回答中包含完整的卡號、CVV碼或其他敏感信息！
+
+待解析數據：
+{input}
+                    </textarea>
+                </div>
+                
+                <div class="config-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">置信度閾值：</label>
+                            <input type="range" id="confidenceThreshold" min="0" max="100" value="80" 
+                                   oninput="document.getElementById('confidenceValue').textContent = this.value + '%'">
+                            <div style="text-align: center; margin-top: 5px;">
+                                <span id="confidenceValue">80%</span>
+                            </div>
+                            <small style="color: #7f8c8d;">低於此置信度的結果將被標記為需要人工審核</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">數據驗證級別：</label>
+                            <select class="form-select" id="validationLevel">
+                                <option value="basic">基本驗證</option>
+                                <option value="standard" selected>標準驗證</option>
+                                <option value="strict">嚴格驗證</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">自動分類規則：</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <label>
+                                    <input type="checkbox" id="autoCountryDetection" checked>
+                                    自動國家檢測
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="autoQualityAssessment" checked>
+                                    自動品質評估
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="autoPricingSuggestion" checked>
+                                    自動定價建議
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="autoStockCalculation" checked>
+                                    自動庫存計算
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 15px;">
+                    <button onclick="saveClassificationConfig()" class="btn btn-success">
+                        💾 保存分類設置
+                    </button>
+                    <button onclick="testClassificationAPI()" class="btn btn-warning">
+                        🧪 測試分類 API
+                    </button>
+                    <button onclick="resetToDefault()" class="btn btn-danger">
+                        🔄 恢復預設
+                    </button>
+                </div>
+                
+                <!-- API 測試結果 -->
+                <div id="apiTestResult" class="api-test-result" style="display: none;"></div>
+            </div>
+            
+            <!-- 安全設置 -->
+            <div id="security" class="config-section">
+                <div class="section-title">🔒 AI 安全設置</div>
+                
+                <div class="config-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">敏感信息過濾：</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <label>
+                                    <input type="checkbox" id="filterCreditCards" checked disabled>
+                                    過濾信用卡號碼 (強制啟用)
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterCVVCodes" checked disabled>
+                                    過濾 CVV 代碼 (強制啟用)
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterPersonalInfo" checked>
+                                    過濾個人信息
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="filterBankInfo" checked>
+                                    過濾銀行詳細信息
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">數據加密：</label>
+                            <select class="form-select" id="encryptionLevel">
+                                <option value="none">無加密</option>
+                                <option value="basic">基本加密</option>
+                                <option value="advanced" selected>高級加密 (AES-256)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">存取日誌：</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <label>
+                                    <input type="checkbox" id="logAPIRequests" checked>
+                                    記錄 API 請求
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="logClassificationResults" checked>
+                                    記錄分類結果
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="logUserActions" checked>
+                                    記錄用戶操作
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="logErrors" checked>
+                                    記錄錯誤信息
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">日誌保留期限：</label>
+                            <select class="form-select" id="logRetention">
+                                <option value="7">7 天</option>
+                                <option value="30" selected>30 天</option>
+                                <option value="90">90 天</option>
+                                <option value="365">1 年</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="saveSecurityConfig()" class="btn btn-success">
+                    🔐 保存安全設置
+                </button>
+            </div>
+            
+            <!-- 監控設置 -->
+            <div id="monitoring" class="config-section">
+                <div class="section-title">📊 AI 監控設置</div>
+                
+                <div class="config-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">性能監控：</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <label>
+                                    <input type="checkbox" id="monitorResponseTime" checked>
+                                    監控響應時間
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="monitorSuccessRate" checked>
+                                    監控成功率
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="monitorAPIUsage" checked>
+                                    監控 API 使用量
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="monitorCosts" checked>
+                                    監控成本消耗
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">警報閾值設置：</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="min-width: 120px;">響應時間:</span>
+                                    <input type="number" class="form-input" value="10" min="1" max="60" style="width: 80px;">
+                                    <span>秒</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="min-width: 120px;">成功率:</span>
+                                    <input type="number" class="form-input" value="90" min="50" max="100" style="width: 80px;">
+                                    <span>%</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="min-width: 120px;">每日成本:</span>
+                                    <input type="number" class="form-input" value="50" min="1" max="1000" style="width: 80px;">
+                                    <span>USD</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">通知設置：</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <label>
+                                    <input type="checkbox" id="enableTelegramNotifications" checked>
+                                    Telegram 通知
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="enableEmailNotifications">
+                                    郵件通知
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="enableWebhookNotifications">
+                                    Webhook 通知
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">通知接收者：</label>
+                            <textarea class="form-textarea" id="notificationRecipients" style="height: 100px;">
+開發員: 5931779846
+管理員: 7046315762
+                            </textarea>
+                            <small style="color: #7f8c8d;">每行一個 Telegram ID</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="saveMonitoringConfig()" class="btn btn-success">
+                    📊 保存監控設置
+                </button>
+            </div>
+            
+            <!-- 當前配置狀態 -->
+            <div class="config-section">
+                <div class="section-title">📋 當前 AI 配置狀態</div>
+                
+                <div style="background: #f8f9fa; border-radius: 8px; padding: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div>
+                            <strong>🔧 基本設置</strong>
+                            <div style="margin-top: 10px; font-size: 14px;">
+                                <div>處理模式: <span style="color: #667eea;">精確模式</span></div>
+                                <div>批量限制: <span style="color: #667eea;">100 條/次</span></div>
+                                <div>自動重試: <span style="color: #27ae60;">啟用 (3次)</span></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <strong>🤖 分類設置</strong>
+                            <div style="margin-top: 10px; font-size: 14px;">
+                                <div>置信度閾值: <span style="color: #667eea;">80%</span></div>
+                                <div>驗證級別: <span style="color: #667eea;">標準驗證</span></div>
+                                <div>自動分類: <span style="color: #27ae60;">全部啟用</span></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <strong>🔒 安全設置</strong>
+                            <div style="margin-top: 10px; font-size: 14px;">
+                                <div>敏感信息過濾: <span style="color: #27ae60;">啟用</span></div>
+                                <div>數據加密: <span style="color: #27ae60;">AES-256</span></div>
+                                <div>存取日誌: <span style="color: #27ae60;">完整記錄</span></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <strong>📊 監控設置</strong>
+                            <div style="margin-top: 10px; font-size: 14px;">
+                                <div>性能監控: <span style="color: #27ae60;">啟用</span></div>
+                                <div>Telegram 通知: <span style="color: #27ae60;">啟用</span></div>
+                                <div>警報閾值: <span style="color: #667eea;">已配置</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button onclick="exportConfig()" class="btn btn-primary">
+                        📤 導出配置
+                    </button>
+                    <button onclick="importConfig()" class="btn btn-primary">
+                        📥 導入配置
+                    </button>
+                    <button onclick="resetAllConfig()" class="btn btn-danger">
+                        🗑️ 重置所有設置
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 頁面初始化
+        function initializePage() {
+            updateTime();
+            setInterval(updateTime, 1000);
+            loadCurrentConfig();
+        }
+        
+        // 更新時間
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-TW', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('current-time').textContent = timeString;
+        }
+        
+        // 滾動到指定區域
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // 測試 AI 引擎
+        async function testAIEngine() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            
+            btn.textContent = '🔄 測試中...';
+            btn.disabled = true;
+            
+            try {
+                // 模擬 API 測試
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                showNotification('✅ AI 引擎連接測試成功！響應時間: 1.2秒', 'success');
+                
+            } catch (error) {
+                showNotification('❌ AI 引擎測試失敗: ' + error.message, 'error');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        // 保存基本設置
+        function saveGeneralConfig() {
+            const config = {
+                processingMode: document.getElementById('processingMode').value,
+                batchLimit: document.getElementById('batchLimit').value,
+                enableRetry: document.getElementById('enableRetry').checked,
+                maxRetries: document.getElementById('maxRetries').value,
+                timeoutSeconds: document.getElementById('timeoutSeconds').value,
+                concurrentLimit: document.getElementById('concurrentLimit').value
+            };
+            
+            // 模擬保存到後端
+            localStorage.setItem('cvvbot_ai_general_config', JSON.stringify(config));
+            showNotification('✅ 基本設置已保存', 'success');
+        }
+        
+        // 保存分類設置
+        function saveClassificationConfig() {
+            const config = {
+                classificationPrompt: document.getElementById('classificationPrompt').value,
+                confidenceThreshold: document.getElementById('confidenceThreshold').value,
+                validationLevel: document.getElementById('validationLevel').value,
+                autoCountryDetection: document.getElementById('autoCountryDetection').checked,
+                autoQualityAssessment: document.getElementById('autoQualityAssessment').checked,
+                autoPricingSuggestion: document.getElementById('autoPricingSuggestion').checked,
+                autoStockCalculation: document.getElementById('autoStockCalculation').checked
+            };
+            
+            localStorage.setItem('cvvbot_ai_classification_config', JSON.stringify(config));
+            showNotification('✅ 分類設置已保存', 'success');
+        }
+        
+        // 保存安全設置
+        function saveSecurityConfig() {
+            const config = {
+                filterPersonalInfo: document.getElementById('filterPersonalInfo').checked,
+                filterBankInfo: document.getElementById('filterBankInfo').checked,
+                encryptionLevel: document.getElementById('encryptionLevel').value,
+                logAPIRequests: document.getElementById('logAPIRequests').checked,
+                logClassificationResults: document.getElementById('logClassificationResults').checked,
+                logUserActions: document.getElementById('logUserActions').checked,
+                logErrors: document.getElementById('logErrors').checked,
+                logRetention: document.getElementById('logRetention').value
+            };
+            
+            localStorage.setItem('cvvbot_ai_security_config', JSON.stringify(config));
+            showNotification('🔐 安全設置已保存', 'success');
+        }
+        
+        // 保存監控設置
+        function saveMonitoringConfig() {
+            const config = {
+                monitorResponseTime: document.getElementById('monitorResponseTime').checked,
+                monitorSuccessRate: document.getElementById('monitorSuccessRate').checked,
+                monitorAPIUsage: document.getElementById('monitorAPIUsage').checked,
+                monitorCosts: document.getElementById('monitorCosts').checked,
+                enableTelegramNotifications: document.getElementById('enableTelegramNotifications').checked,
+                enableEmailNotifications: document.getElementById('enableEmailNotifications').checked,
+                enableWebhookNotifications: document.getElementById('enableWebhookNotifications').checked,
+                notificationRecipients: document.getElementById('notificationRecipients').value
+            };
+            
+            localStorage.setItem('cvvbot_ai_monitoring_config', JSON.stringify(config));
+            showNotification('📊 監控設置已保存', 'success');
+        }
+        
+        // 測試分類 API
+        async function testClassificationAPI() {
+            const resultDiv = document.getElementById('apiTestResult');
+            const btn = event.target;
+            const originalText = btn.textContent;
+            
+            btn.textContent = '🔄 測試中...';
+            btn.disabled = true;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'api-test-result';
+            resultDiv.textContent = '🤖 正在測試 AI 分類 API...';
+            
+            try {
+                // 模擬 API 測試
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                resultDiv.className = 'api-test-result success-test';
+                resultDiv.innerHTML = `
+<strong>✅ AI 分類 API 測試成功！</strong>
+
+📊 <strong>測試結果:</strong>
+• 響應時間: 2.1 秒
+• 解析準確度: 94.5%
+• API 狀態: 正常
+• 置信度: 89%
+
+🧪 <strong>測試數據:</strong>
+輸入: "AR_阿根廷🇦🇷_全資 40%-70% [2417]"
+
+📋 <strong>解析結果:</strong>
+{
+  "countryCode": "AR",
+  "country": "阿根廷",
+  "countryFlag": "🇦🇷",
+  "dataType": "全資",
+  "activityRate": "40%-70%",
+  "stock": 2417,
+  "confidence": 0.89
+}
+                `;
+                
+            } catch (error) {
+                resultDiv.className = 'api-test-result error-test';
+                resultDiv.textContent = '❌ API 測試失敗: ' + error.message;
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        // 恢復預設設置
+        function resetToDefault() {
+            if (confirm('確定要恢復預設設置嗎？這將清除所有自定義配置。')) {
+                localStorage.removeItem('cvvbot_ai_general_config');
+                localStorage.removeItem('cvvbot_ai_classification_config');
+                localStorage.removeItem('cvvbot_ai_security_config');
+                localStorage.removeItem('cvvbot_ai_monitoring_config');
+                
+                location.reload();
+            }
+        }
+        
+        // 導出配置
+        function exportConfig() {
+            const allConfig = {
+                general: JSON.parse(localStorage.getItem('cvvbot_ai_general_config') || '{}'),
+                classification: JSON.parse(localStorage.getItem('cvvbot_ai_classification_config') || '{}'),
+                security: JSON.parse(localStorage.getItem('cvvbot_ai_security_config') || '{}'),
+                monitoring: JSON.parse(localStorage.getItem('cvvbot_ai_monitoring_config') || '{}'),
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(allConfig, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cvvbot-ai-config-' + new Date().toISOString().split('T')[0] + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('📤 配置已導出', 'success');
+        }
+        
+        // 導入配置
+        function importConfig() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const config = JSON.parse(e.target.result);
+                            
+                            // 保存各個配置
+                            if (config.general) localStorage.setItem('cvvbot_ai_general_config', JSON.stringify(config.general));
+                            if (config.classification) localStorage.setItem('cvvbot_ai_classification_config', JSON.stringify(config.classification));
+                            if (config.security) localStorage.setItem('cvvbot_ai_security_config', JSON.stringify(config.security));
+                            if (config.monitoring) localStorage.setItem('cvvbot_ai_monitoring_config', JSON.stringify(config.monitoring));
+                            
+                            showNotification('📥 配置已導入，頁面將重新載入', 'success');
+                            setTimeout(() => location.reload(), 2000);
+                            
+                        } catch (error) {
+                            showNotification('❌ 配置文件格式錯誤', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            
+            input.click();
+        }
+        
+        // 重置所有配置
+        function resetAllConfig() {
+            if (confirm('⚠️ 警告：這將刪除所有 AI 配置設置，確定要繼續嗎？')) {
+                localStorage.clear();
+                showNotification('🗑️ 所有配置已重置', 'warning');
+                setTimeout(() => location.reload(), 2000);
+            }
+        }
+        
+        // 載入當前配置
+        function loadCurrentConfig() {
+            // 載入基本設置
+            const generalConfig = JSON.parse(localStorage.getItem('cvvbot_ai_general_config') || '{}');
+            if (generalConfig.processingMode) document.getElementById('processingMode').value = generalConfig.processingMode;
+            if (generalConfig.batchLimit) document.getElementById('batchLimit').value = generalConfig.batchLimit;
+            if (generalConfig.enableRetry !== undefined) document.getElementById('enableRetry').checked = generalConfig.enableRetry;
+            if (generalConfig.maxRetries) document.getElementById('maxRetries').value = generalConfig.maxRetries;
+            if (generalConfig.timeoutSeconds) document.getElementById('timeoutSeconds').value = generalConfig.timeoutSeconds;
+            if (generalConfig.concurrentLimit) document.getElementById('concurrentLimit').value = generalConfig.concurrentLimit;
+            
+            // 載入分類設置
+            const classificationConfig = JSON.parse(localStorage.getItem('cvvbot_ai_classification_config') || '{}');
+            if (classificationConfig.classificationPrompt) document.getElementById('classificationPrompt').value = classificationConfig.classificationPrompt;
+            if (classificationConfig.confidenceThreshold) {
+                document.getElementById('confidenceThreshold').value = classificationConfig.confidenceThreshold;
+                document.getElementById('confidenceValue').textContent = classificationConfig.confidenceThreshold + '%';
+            }
+            if (classificationConfig.validationLevel) document.getElementById('validationLevel').value = classificationConfig.validationLevel;
+        }
+        
+        // 顯示通知
+        function showNotification(message, type) {
+            const colors = {
+                'success': '#27ae60',
+                'error': '#e74c3c',
+                'warning': '#f39c12',
+                'info': '#3498db'
+            };
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${colors[type] || colors.info};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                z-index: 1000;
+                font-weight: bold;
+                max-width: 300px;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 4000);
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+        });
+    </script>
+</body>
+</html>

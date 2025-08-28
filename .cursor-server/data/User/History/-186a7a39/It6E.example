@@ -1,9 +1,0 @@
-# 清理所有依賴
-rm -rf node_modules package-lock.json
-cd admin && rm -rf node_modules package-lock.json
-cd ../web && rm -rf node_modules package-lock.json
-cd ../functions && rm -rf node_modules package-lock.json
-
-# 重新安裝
-cd ..
-npm install --legacy-peer-deps

@@ -1,0 +1,19 @@
+{
+  "hosting": {
+    "public": "cvv-website",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "functions": {
+    "source": "偉大/functions"
+  }
+}

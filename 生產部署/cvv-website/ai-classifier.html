@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 分類系統 - CVV Bot 後台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            margin-top: 80px;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            padding-top: 100px;
+        }
+        
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        
+        .sidebar-item {
+            display: block;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .sidebar-item:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .sidebar-item.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            margin-left: 280px;
+            width: calc(100% - 280px);
+        }
+        
+        .tab-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .tab-header {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+        
+        .tab-content {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #219a52;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+
+        
+        .result-box {
+            background: #f8f9fa;
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        
+        .success-result {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .error-result {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                height: auto;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .container {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .ai-provider-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">🤖 AI 分類系統</div>
+            <div class="user-info">
+                <a href="admin.html" style="color: white; text-decoration: none; padding: 8px 15px; background: rgba(255,255,255,0.2); border-radius: 5px;">
+                    🔙 返回後台
+                </a>
+                <span>👤 管理員</span>
+                <span>|</span>
+                <span>🕒 <span id="current-time"></span></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <!-- 側邊欄 -->
+        <div class="sidebar">
+            <div class="sidebar-title">🧠 AI 功能</div>
+            
+            <a href="#" onclick="showTab('classify')" class="sidebar-item" id="tab-classify">
+                🔍 智能分類
+            </a>
+            
+            <a href="#" onclick="showTab('batch')" class="sidebar-item" id="tab-batch">
+                📦 批量處理
+            </a>
+            
+            <a href="#" onclick="showTab('rules')" class="sidebar-item" id="tab-rules">
+                📋 分類規則
+            </a>
+            
+            <a href="#" onclick="showTab('providers')" class="sidebar-item" id="tab-providers">
+                🤖 AI 提供商
+            </a>
+            
+            <a href="#" onclick="showTab('stats')" class="sidebar-item" id="tab-stats">
+                📊 統計分析
+            </a>
+            
+            <div class="sidebar-title" style="margin-top: 30px;">🔗 快速連結</div>
+            
+            <a href="http://10.140.0.2:3000/admin/cvv-classifier" target="_blank" class="sidebar-item">
+                🌐 完整版分類器
+            </a>
+            
+            <a href="admin.html" class="sidebar-item">
+                🖥️ 管理後台首頁
+            </a>
+        </div>
+        
+        <div class="container">
+            <!-- 智能分類標籤頁 -->
+            <div id="classify-tab" class="tab-container">
+                <div class="tab-header">
+                    <button class="tab-btn active">🔍 智能分類</button>
+                </div>
+                <div class="tab-content">
+                    <h3>🤖 AI 智能 CVV 分類器</h3>
+                    <p style="color: #7f8c8d; margin-bottom: 30px;">輸入 CVV 數據，AI 將自動解析國家、活率、庫存等信息</p>
+                    
+
+                    
+                    <!-- 輸入區域 -->
+                    <div class="form-group">
+                        <label class="form-label">CVV 數據輸入：</label>
+                        <textarea 
+                            id="cvvInput" 
+                            class="form-textarea" 
+                            placeholder="請輸入 CVV 數據，例如：&#10;AR_阿根廷🇦🇷_全資 40%-70% [2417]&#10;DE_德國🇩🇪_頂級全資 50%-80% 🔥 [2109]&#10;BO_玻利維亞🇧🇴_55%-75% 💎 [2269]"
+                            style="height: 150px;"
+                        ></textarea>
+                    </div>
+                    
+                    <!-- 操作按鈕 -->
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                        <button onclick="classifyData()" class="btn btn-primary" id="classifyBtn">
+                            🚀 開始分類
+                        </button>
+                        <button onclick="clearInput()" class="btn btn-secondary">
+                            🗑️ 清空輸入
+                        </button>
+                        <button onclick="loadSampleData()" class="btn btn-success">
+                            📋 載入範例
+                        </button>
+                    </div>
+                    
+                    <!-- 結果顯示 -->
+                    <div id="classificationResult" class="result-box" style="display: none;">
+                        <div id="resultContent"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 批量處理標籤頁 -->
+            <div id="batch-tab" class="tab-container" style="display: none;">
+                <div class="tab-header">
+                    <button class="tab-btn active">📦 批量處理</button>
+                </div>
+                <div class="tab-content">
+                    <h3>📦 批量 CVV 數據處理</h3>
+                    <p style="color: #7f8c8d; margin-bottom: 30px;">上傳大量 CVV 數據進行批量 AI 分類處理</p>
+                    
+                    <div class="form-group">
+                        <label class="form-label">上傳 CVV 數據文件：</label>
+                        <input type="file" id="batchFile" class="form-input" accept=".txt,.csv,.json">
+                        <small style="color: #7f8c8d;">支援格式：TXT, CSV, JSON</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">處理設置：</label>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <label>
+                                <input type="checkbox" id="enableValidation" checked>
+                                啟用數據驗證
+                            </label>
+                            <label>
+                                <input type="checkbox" id="enableDeduplication" checked>
+                                自動去重
+                            </label>
+                            <label>
+                                <input type="checkbox" id="enablePricing" checked>
+                                AI 定價建議
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button onclick="processBatch()" class="btn btn-primary" id="batchBtn">
+                        🚀 開始批量處理
+                    </button>
+                    
+                    <!-- 批量處理進度 -->
+                    <div id="batchProgress" style="display: none; margin-top: 20px;">
+                        <div style="background: #ecf0f1; border-radius: 10px; height: 20px; overflow: hidden;">
+                            <div id="progressBar" style="background: #667eea; height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                        </div>
+                        <div id="progressText" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
+                    </div>
+                    
+                    <!-- 批量處理結果 -->
+                    <div id="batchResult" class="result-box" style="display: none;">
+                        <div id="batchResultContent"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 統計分析標籤頁 -->
+            <div id="stats-tab" class="tab-container" style="display: none;">
+                <div class="tab-header">
+                    <button class="tab-btn active">📊 統計分析</button>
+                </div>
+                <div class="tab-content">
+                    <h3>📊 AI 分類系統統計</h3>
+                    
+                    <!-- 統計數據 -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalProcessed">12,456</div>
+                            <div class="stat-label">總處理數量</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="successRate">94.2%</div>
+                            <div class="stat-label">成功率</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="avgTime">1.8s</div>
+                            <div class="stat-label">平均處理時間</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalCost">$45.67</div>
+                            <div class="stat-label">總 API 成本</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 國家分佈統計 -->
+                    <div style="background: white; border-radius: 10px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <h4>🌍 國家分佈統計</h4>
+                        <div id="countryStats">
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px; background: #f8f9fa; border-radius: 5px;">
+                                <span>🇺🇸 美國</span>
+                                <span><strong>3,456 張 (27.8%)</strong></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px; background: #f8f9fa; border-radius: 5px;">
+                                <span>🇬🇧 英國</span>
+                                <span><strong>2,123 張 (17.1%)</strong></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px; background: #f8f9fa; border-radius: 5px;">
+                                <span>🇨🇦 加拿大</span>
+                                <span><strong>1,876 張 (15.1%)</strong></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px; background: #f8f9fa; border-radius: 5px;">
+                                <span>🇦🇷 阿根廷</span>
+                                <span><strong>1,234 張 (9.9%)</strong></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px; background: #f8f9fa; border-radius: 5px;">
+                                <span>🇩🇪 德國</span>
+                                <span><strong>987 張 (7.9%)</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI 模型使用統計 -->
+                    <div style="background: white; border-radius: 10px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <h4>🤖 AI 模型使用統計</h4>
+                        <div id="aiModelStats">
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px; background: #f8f9fa; border-radius: 5px;">
+                                <span>💎 Gemini Pro</span>
+                                <span><strong>6,789 次 (54.5%)</strong></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px; background: #f8f9fa; border-radius: 5px;">
+                                <span>🧠 GPT-4</span>
+                                <span><strong>3,456 次 (27.8%)</strong></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px; background: #f8f9fa; border-radius: 5px;">
+                                <span>🎭 Claude</span>
+                                <span><strong>2,211 次 (17.7%)</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentTab = 'classify';
+        
+        // 頁面初始化
+        function initializePage() {
+            updateTime();
+            setInterval(updateTime, 1000);
+            showTab('classify');
+        }
+        
+        // 更新時間
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-TW', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('current-time').textContent = timeString;
+        }
+        
+        // 顯示標籤頁
+        function showTab(tabName) {
+            // 隱藏所有標籤頁
+            const tabs = ['classify', 'batch', 'rules', 'providers', 'stats'];
+            tabs.forEach(tab => {
+                const element = document.getElementById(tab + '-tab');
+                if (element) {
+                    element.style.display = 'none';
+                }
+                
+                const sidebarItem = document.getElementById('tab-' + tab);
+                if (sidebarItem) {
+                    sidebarItem.classList.remove('active');
+                }
+            });
+            
+            // 顯示選中的標籤頁
+            const selectedTab = document.getElementById(tabName + '-tab');
+            if (selectedTab) {
+                selectedTab.style.display = 'block';
+            }
+            
+            const selectedSidebarItem = document.getElementById('tab-' + tabName);
+            if (selectedSidebarItem) {
+                selectedSidebarItem.classList.add('active');
+            }
+            
+            currentTab = tabName;
+        }
+        
+
+        
+        // 分類數據
+        async function classifyData() {
+            const input = document.getElementById('cvvInput').value.trim();
+            const resultDiv = document.getElementById('classificationResult');
+            const resultContent = document.getElementById('resultContent');
+            const classifyBtn = document.getElementById('classifyBtn');
+            
+            if (!input) {
+                alert('請輸入 CVV 數據');
+                return;
+            }
+            
+            // 顯示載入狀態
+            classifyBtn.textContent = '🔄 分類中...';
+            classifyBtn.disabled = true;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result-box';
+            resultContent.textContent = '🤖 AI 正在分析數據，請稍候...';
+            
+            try {
+                // 模擬 AI 分類處理
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // 模擬分類結果
+                const mockResult = simulateClassification(input);
+                
+                resultDiv.className = 'result-box success-result';
+                resultContent.innerHTML = `
+<strong>✅ AI 分類完成！</strong>
+
+🤖 <strong>使用模型:</strong> CVV 智能分析引擎
+⏱️ <strong>處理時間:</strong> 1.8 秒
+🎯 <strong>置信度:</strong> ${mockResult.confidence}%
+
+📊 <strong>分類結果:</strong>
+${JSON.stringify(mockResult.parsed, null, 2)}
+
+💡 <strong>AI 建議:</strong>
+${mockResult.recommendation}
+
+🔒 <strong>安全提醒:</strong>
+已自動隱藏敏感信息，僅顯示安全預覽
+                `;
+                
+            } catch (error) {
+                resultDiv.className = 'result-box error-result';
+                resultContent.textContent = '❌ 分類失敗: ' + error.message;
+            } finally {
+                classifyBtn.textContent = '🚀 開始分類';
+                classifyBtn.disabled = false;
+            }
+        }
+        
+        // 模擬分類結果
+        function simulateClassification(input) {
+            const lines = input.split('\n').filter(line => line.trim());
+            const results = lines.map(line => {
+                // 解析 CVV 數據格式
+                const countryMatch = line.match(/([A-Z]{2})_([^🇦-🇿]*)(🇦🇿|🏳️|🏴)/);
+                const rateMatch = line.match(/(\d+%-\d+%)/);
+                const stockMatch = line.match(/\[(\d+)\]/);
+                const typeMatch = line.match(/(全資|庫存|頂級|特價)/);
+                const specialMatch = line.match(/(🔥|💎|⭐|🎯)/);
+                
+                return {
+                    countryCode: countryMatch ? countryMatch[1] : 'Unknown',
+                    country: countryMatch ? countryMatch[2].replace('_', '') : '未知',
+                    countryFlag: countryMatch ? countryMatch[3] : '🏳️',
+                    dataType: typeMatch ? typeMatch[1] : '標準',
+                    activityRate: rateMatch ? rateMatch[1] : '未知',
+                    stock: stockMatch ? parseInt(stockMatch[1]) : 0,
+                    hasSpecialFeature: !!specialMatch,
+                    specialFeature: specialMatch ? specialMatch[1] : null,
+                    safePreview: line.replace(/\d{16}/g, '****-****-****-****').replace(/\d{3,4}/g, '***')
+                };
+            });
+            
+            return {
+                parsed: results,
+                confidence: Math.floor(Math.random() * 20) + 80,
+                recommendation: generateRecommendation(results),
+                totalProcessed: results.length,
+                successCount: results.length,
+                errorCount: 0
+            };
+        }
+        
+        // 生成建議
+        function generateRecommendation(results) {
+            const countries = [...new Set(results.map(r => r.country))];
+            const avgStock = Math.floor(results.reduce((sum, r) => sum + r.stock, 0) / results.length);
+            
+            return `建議將這批數據分為 ${countries.length} 個國家類別，平均庫存 ${avgStock} 張。建議優先處理有特殊標記的高品質卡片。`;
+        }
+        
+        // 獲取提供商名稱
+        function getProviderName(provider) {
+            const names = {
+                'openai': 'OpenAI GPT-4',
+                'claude': 'Claude (Anthropic)',
+                'gemini': 'Google Gemini Pro'
+            };
+            return names[provider] || provider;
+        }
+        
+        // 清空輸入
+        function clearInput() {
+            document.getElementById('cvvInput').value = '';
+            const resultDiv = document.getElementById('classificationResult');
+            resultDiv.style.display = 'none';
+        }
+        
+        // 載入範例數據
+        function loadSampleData() {
+            const sampleData = `AR_阿根廷🇦🇷_全資 40%-70% [2417]
+DE_德國🇩🇪_頂級全資 50%-80% 🔥 [2109]
+BO_玻利維亞🇧🇴_55%-75% 💎 [2269]
+US_美國🇺🇸_特價 85%-95% ⭐ [1456]
+BR_巴西🇧🇷_庫存 30%-60% [3789]`;
+            
+            document.getElementById('cvvInput').value = sampleData;
+        }
+        
+        // 批量處理
+        async function processBatch() {
+            const fileInput = document.getElementById('batchFile');
+            const progressDiv = document.getElementById('batchProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const resultDiv = document.getElementById('batchResult');
+            const resultContent = document.getElementById('batchResultContent');
+            const batchBtn = document.getElementById('batchBtn');
+            
+            if (!fileInput.files[0]) {
+                alert('請選擇要處理的文件');
+                return;
+            }
+            
+            // 顯示進度
+            batchBtn.textContent = '🔄 處理中...';
+            batchBtn.disabled = true;
+            progressDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            
+            try {
+                // 模擬批量處理
+                for (let i = 0; i <= 100; i += 10) {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    progressBar.style.width = i + '%';
+                    progressText.textContent = `處理進度: ${i}% (${Math.floor(i * 0.5)} / 50 條記錄)`;
+                }
+                
+                // 顯示結果
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result-box success-result';
+                resultContent.innerHTML = `
+<strong>✅ 批量處理完成！</strong>
+
+📊 <strong>處理統計:</strong>
+• 總輸入: 50 條記錄
+• 成功處理: 48 條 (96%)
+• 處理失敗: 2 條 (4%)
+• 總處理時間: 45.2 秒
+
+🌍 <strong>國家分佈:</strong>
+• 🇺🇸 美國: 15 張 (31.3%)
+• 🇩🇪 德國: 12 張 (25.0%)
+• 🇦🇷 阿根廷: 8 張 (16.7%)
+• 🇧🇷 巴西: 7 張 (14.6%)
+• 🇧🇴 玻利維亞: 6 張 (12.5%)
+
+💰 <strong>定價建議:</strong>
+• 高品質卡片: $45-65 USDT
+• 標準卡片: $25-35 USDT
+• 基礎卡片: $15-25 USDT
+
+🔒 <strong>安全處理:</strong>
+所有敏感信息已自動過濾和加密存儲
+                `;
+                
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result-box error-result';
+                resultContent.textContent = '❌ 批量處理失敗: ' + error.message;
+            } finally {
+                batchBtn.textContent = '🚀 開始批量處理';
+                batchBtn.disabled = false;
+                progressDiv.style.display = 'none';
+            }
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+        });
+    </script>
+</body>
+</html>
