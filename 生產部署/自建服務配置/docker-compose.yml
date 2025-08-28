@@ -1,0 +1,134 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 數據庫
+  postgres:
+    image: postgres:16
+    container_name: cvvbot_postgres
+    environment:
+      POSTGRES_DB: cvvbot_db
+      POSTGRES_USER: cvv000
+      POSTGRES_PASSWORD: cvv123456
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - cvvbot_network
+
+  # Redis 緩存
+  redis:
+    image: redis:7-alpine
+    container_name: cvvbot_redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - cvvbot_network
+
+  # MinIO 對象存儲 (替代 Firebase Storage)
+  minio:
+    image: minio/minio:latest
+    container_name: cvvbot_minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minio123456
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    restart: unless-stopped
+    networks:
+      - cvvbot_network
+
+  # 後端 API 服務
+  backend:
+    build: ./BACKEND
+    container_name: cvvbot_backend
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: cvvbot_db
+      DB_USER: cvv000
+      DB_PASSWORD: cvv123456
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minio123456
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    restart: unless-stopped
+    networks:
+      - cvvbot_network
+
+  # Web 前端
+  frontend:
+    build: ./cvv-website
+    container_name: cvvbot_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - cvvbot_network
+
+  # Telegram Bot
+  bot:
+    build: ./cvvbot-v2
+    container_name: cvvbot_telegram
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: cvvbot_db
+      DB_USER: cvv000
+      DB_PASSWORD: cvv123456
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - cvvbot_network
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: cvvbot_nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    ports:
+      - "443:443"
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - cvvbot_network
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+
+networks:
+  cvvbot_network:
+    driver: bridge
+
